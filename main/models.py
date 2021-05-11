@@ -9,11 +9,12 @@ class User(AbstractUser):
 
 class Product(models.Model):
 	id = models.AutoField(primary_key=True)
+	category = models.CharField(max_length=100)
 	sap_code = models.IntegerField()
 	name = models.CharField(max_length=100)
-	inventory = models.IntegerField()
-	price_per_unit = models.DecimalField(max_digits=6, decimal_places=2)
+	unit_price = models.DecimalField(max_digits=6, decimal_places=2)
 	availability = models.BooleanField()
+	image = models.ImageField()
 
 	def __str__(self):
 		return f"{self.name}"
