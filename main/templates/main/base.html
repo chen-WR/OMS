@@ -1,0 +1,43 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>Inventory Management</title>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- ChartJS  -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@3.2.1/dist/chart.min.js"></script>
+
+        <!-- jquery -->
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+        <!-- semantic UI -->
+        <link rel="stylesheet" type='text/css' href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.14/semantic.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+
+        <!-- BootStrap -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+        <!-- custom css & js -->
+        <script src={% static 'main.js' %} defer></script>
+        <script src={% static 'semantic.js' %} defer></script>
+        <link rel="stylesheet" href={% static 'style.css' %}>
+        <div class="ui four item menu">
+            <a href="{% url 'home' %}" class="active item" >Home</a>
+            <a href= "{% url 'product' %}" class="active item">Product</a>
+            <a href= "{% url 'cart' %}" class="active item">Cart</a>
+            <a href="{% url 'logouts' %}" class="active item" >Log Out</a>
+        </div>
+    </head>
+
+    <body>
+
+        <div class='container'>
+        {% block content %}
+
+        {% endblock content %}
+        </div>
+    </body>
+</html>
