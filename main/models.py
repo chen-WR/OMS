@@ -1,25 +1,82 @@
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
+from django.templatetags.static import static
 
 class User(AbstractUser):
 	id = models.AutoField(primary_key=True)
+	store_name = models.CharField(max_length=100)
 
 	def __str__(self):
 		return f"{self.username}"
 
 class Product(models.Model):
 	id = models.AutoField(primary_key=True)
-	category = models.CharField(max_length=100)
-	sap_code = models.IntegerField()
-	name = models.CharField(max_length=100)
-	unit_price = models.DecimalField(max_digits=6, decimal_places=2)
-	availability = models.BooleanField()
-	image = models.ImageField()
-
+	category = models.CharField(max_length=100, null=True, blank=True)
+	sap = models.IntegerField(null=True, blank=True)
+	description = models.CharField(max_length=100, null=True, blank=True)
+	picture = models.ImageField(null=True, blank=True)
+	size = models.CharField(max_length=100, null=True, blank=True)
+	unit_price = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
+	unit = models.IntegerField(null=True, blank=True)
+	availability = models.BooleanField(default=True)
+	
 	def __str__(self):
-		return f"{self.name}"
+		return f"{self.category}"
+
+	@property
+	def imageURL(self):
+		try:
+			url = self.picture.url
+		except:
+			url = static("product_placeholder.png")
+		return url
 
 class Order(models.Model):
 	id = models.AutoField(primary_key=True)
-	user = models.ForeignKey(User, on_delete = models.CASCADE)
-	product = models.ManyToManyField(Product)
+	user = models.ForeignKey(User, null=True, blank=True, on_delete = models.SET_NULL)
+	order_id = models.CharField(max_length=20, blank=True, null=True)
+	date = models.DateTimeField(default=timezone.now)
+	checkout = models.BooleanField(default=False)
+	confirm = models.BooleanField(default=False)
+	confirmation_number = models.CharField(max_length=30, blank=True, null=True)
+
+	def __str__(self):
+		return f"user:{self.user}--order:{self.order_id}--checkout:{self.checkout}"
+
+	@property
+	def getCartCount(self):
+		carts = self.cart_set.all()
+		total = sum([cart.quantity for cart in carts])
+		return total
+
+	@property
+	def getCartTotal(self):
+		carts = self.cart_set.all()
+		total = sum([cart.getItemTotal for cart in carts])
+		return total
+	
+
+class Cart(models.Model):
+	id = models.AutoField(primary_key=True)
+	order = models.ForeignKey(Order, null=True, blank=True,on_delete = models.SET_NULL)
+	product = models.ForeignKey(Product, null=True, blank=True,on_delete = models.SET_NULL)
+	quantity = models.IntegerField(default=0, blank=True, null=True)
+
+	def __str__(self):
+		return f"product:{self.product}"
+
+	@property
+	def getItemTotal(self):
+		total = self.product.unit_price * self.quantity
+		return total
+
+
+	
+	
+
+
+	
+
+
+

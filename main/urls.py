@@ -12,4 +12,7 @@ urlpatterns = [
 	path('cart/', cart, name='cart'),
 	path('checkout/', checkout, name='checkout'),
 
-] + static(settings.STATIC_URL,document_root=settings.STATIC_ROOT)
+] 
+
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
