@@ -1,7 +1,7 @@
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import index, logins, logouts, home, product, cart, checkout
+from .views import index, logins, logouts, home, product, cart, checkout, updateCart
 
 urlpatterns = [
 	path('', index, name='index'),
@@ -11,6 +11,7 @@ urlpatterns = [
 	path('product/', product, name='product'),
 	path('cart/', cart, name='cart'),
 	path('checkout/', checkout, name='checkout'),
+	path('updateCart/', updateCart, name='updateCart'),
 
 ] 
 

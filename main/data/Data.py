@@ -5,12 +5,11 @@ from pathlib import Path
 import os
 import json
 
-# Get main folder
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-# Create product image directory if does not exist
-Path(f"{BASE_DIR}/static/product image").mkdir(parents=True, exist_ok=True)
+# Get main folder# Create product image directory if does not exist
+current_dir = os.getcwd()
+Path(f"{current_dir}/product image").mkdir(parents=True, exist_ok=True)
 # Make product image path
-img_dir = os.path.join(BASE_DIR, "static", "product image")
+img_dir = f"{current_dir}/product image"
 
 def openBook():
 	wb = load_workbook('data1.xlsx')

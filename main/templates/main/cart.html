@@ -21,7 +21,8 @@
 				<div class="cart-row">
 					<div style="flex: 2"></div>
 					<div style="flex: 2"><strong>Item</strong></div>
-					<div style="flex: 1"><strong>Price</strong></div>
+					<div style="flex: 1"><strong>Price Per Unit</strong></div>
+					<div style="flex: 1"><strong>Unit</strong></div>
 					<div style="flex: 1"><strong>Quantity</strong></div>
 					<div style="flex: 1"><strong>Total</strong></div>
 				</div>
@@ -30,6 +31,7 @@
 						<div style="flex: 2"><img class="row-image" src="{{ cart.product.imageURL }}"></div>
 						<div style="flex: 2">{{cart.product.category}}</div>
 						<div style="flex: 1">${{cart.product.unit_price}}</div>
+						<div style="flex: 1"><strong>{{cart.product.unit}}</strong></div>
 						<div style="flex: 1">
 							<p class='quantity'>{{cart.quantity}}</p>
 							<div class="quantity">

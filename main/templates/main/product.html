@@ -8,8 +8,8 @@
 				<img class='thumbnail' src="{{ product.imageURL }}">
 				<div class="box-element product">
 					<h6><strong>{{product.category}}</strong></h6>
-					<button class="btn btn-outline-secondary add-btn">Add To Cart</button>
-					<h4 style="display: inline-block; float: right;">${{product.unit_price}}</h4>
+					<button data-product ={{product.id}} data-action="add" class="btn btn-outline-secondary add-btn update-cart">Add To Cart</button>
+					<h4 style="display: inline-block; float: right;">{{product.unit}} for ${{product.unit_price}}</h4>
 					<a class="btn btn-outline-success"href="#">View Cart</a>
 				</div>
 			</div>

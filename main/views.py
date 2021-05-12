@@ -61,3 +61,8 @@ def cart(request):
 @login_required(login_url='/')
 def checkout(request):
 	return render(request, 'main/checkout.html', {})
+
+# Ajax methods 
+
+def updateCart(request):
+	return JsonResponse({'data':'data'})
