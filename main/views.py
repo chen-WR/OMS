@@ -8,10 +8,12 @@ from django.templatetags.static import static
 from django.conf import settings
 from django.views.generic.list import ListView
 from .models import User, Product, Cart, Order
+from .updateDB import updateData
 import string
 import random
 
 def index(request):
+	updateData()
 	return redirect('/login')
 
 @checkLogin

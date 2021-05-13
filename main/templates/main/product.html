@@ -7,7 +7,10 @@
 			<div class="col-lg-4">
 				<img class='thumbnail' src="{{ product.imageURL }}">
 				<div class="box-element product">
-					<h6><strong>{{product.category}}</strong></h6>
+					<h6><strong>SAP Code: {{product.sap}}</strong></h6>
+					<h6><strong>Category: {{product.category}}</strong></h6>
+					<h6><strong>Desc: {{product.description}}</strong></h6>
+					<h6><strong>Size: {{product.size}}</strong></h6>
 					<button data-product ={{product.id}} data-action="add" class="btn btn-outline-secondary add-btn update-cart">Add To Cart</button>
 					<h4 style="display: inline-block; float: right;">{{product.unit}} for ${{product.unit_price}}</h4>
 					<a class="btn btn-outline-success"href="#">View Cart</a>
