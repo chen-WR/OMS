@@ -5,15 +5,19 @@ from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from .decorators import checkLogin, checkSuperuser
 from django.templatetags.static import static
+from django.utils import timezone
 from django.conf import settings
-from django.views.generic.list import ListView
+from django.contrib import messages
 from .models import User, Product, Cart, Order
+from .forms import CheckoutForm
 from .updateDB import updateData
 import string
+import json
 import random
 
 def index(request):
-	updateData()
+	# Currently Not needed
+	# updateData()
 	return redirect('/login')
 
 @checkLogin
@@ -30,41 +34,79 @@ def logins(request):
 		form = AuthenticationForm()
 	return render(request, 'main/login.html',context = {"form":form})
 
-
 def logouts(request):
 	logout(request)
 	return redirect("/")
 
 @login_required(login_url='/')
 def home(request):
-	return render(request, 'main/home.html', {})
+	orders = Order.objects.filter(user=request.user, checkout=True)
+	context = {'orders': orders}
+	return render(request, 'main/home.html', context)
 
 @login_required(login_url='/')
 def product(request):
+	order, create = Order.objects.get_or_create(user=request.user, checkout=False)
+	carts = order.cart_set.all()
 	products = Product.objects.all()
-	context = {'products':products}
+	context = {'products':products, 'carts':carts}
 	return render(request, 'main/product.html', context)
 
 @login_required(login_url='/')
 def cart(request):
-	while True:
-		order_id = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k = 20))	
-		if not Order.objects.filter(order_id=order_id).exists():
-			break
-	if not Order.objects.filter(user=request.user).exists():
-		Order.objects.create(user=request.user, order_id=order_id)
-	elif not Order.objects.filter(user=request.user).filter(checkout=False).exists():
-		Order.objects.create(user=request.user, order_id=order_id)
-	order = Order.objects.get(user=request.user, checkout=False)
+	order, create = Order.objects.get_or_create(user=request.user, checkout=False)
 	carts = order.cart_set.all()
 	context = {'carts':carts, 'order':order}
 	return render(request, 'main/cart.html', context)
 
 @login_required(login_url='/')
 def checkout(request):
-	return render(request, 'main/checkout.html', {})
+	if request.method == "POST":
+		form = CheckoutForm(request.POST)
+		if form.is_valid():
+			confirmation_number = getConfirmationNumber()
+			order = Order.objects.get(user=request.user, checkout=False)
+			order.checkout = True
+			order.confirmation_number = confirmation_number
+			order.date = timezone.now()
+			order.save()
+			return HttpResponseRedirect(f'/ordered/{confirmation_number}')
+	order, create = Order.objects.get_or_create(user=request.user, checkout=False)
+	carts = order.cart_set.all()
+	form = CheckoutForm() 
+	context = {'carts':carts, 'order':order, 'form':form}
+	return render(request, 'main/checkout.html', context)
 
-# Ajax methods 
+@login_required(login_url='/')
+def ordered(request, confirmation_number):
+	return render(request, 'main/ordered.html', {'confirmation_number':confirmation_number})
+
+@login_required(login_url='/')
+def viewOrder(request, confirmation_number):
+	order = Order.objects.get(user=request.user, checkout=True, confirmation_number=confirmation_number)
+	carts = order.cart_set.all()
+	context = {'carts':carts}
+	return render(request, 'main/vieworder.html', context)
 
 def updateCart(request):
-	return JsonResponse({'data':'data'})
+	data = json.loads(request.body)
+	product_id = data['product_id']
+	action = data['action']
+	product = Product.objects.get(id=product_id)
+	order, create = Order.objects.get_or_create(user=request.user, checkout=False)
+	cart, create = Cart.objects.get_or_create(order=order, product=product)
+	if action == "add":
+		cart.quantity += 1
+	elif action == "remove":
+		cart.quantity -= 1
+	cart.save()
+	if cart.quantity <= 0:
+		cart.delete()
+	return JsonResponse({'data':data})
+
+def getConfirmationNumber():
+	while True:
+		confirmation_number = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k = 10))	
+		if not Order.objects.filter(confirmation_number=confirmation_number).exists():
+			break
+	return confirmation_number

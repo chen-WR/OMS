@@ -1,3 +1,6 @@
+const csrftoken = getCookie('csrftoken');
+const updatebtn = document.getElementsByClassName('update-cart')
+
 function getCookie(name) {
 	let cookieValue = null;
 	if (document.cookie && document.cookie !== '') {
@@ -12,19 +15,18 @@ function getCookie(name) {
 	}
 	return cookieValue;
 }
-const csrftoken = getCookie('csrftoken');
-
-const updatebtn = document.getElementsByClassName('update-cart')
 
 for(var i=0; i<updatebtn.length; i++) {
 	updatebtn[i].addEventListener('click', function() {
 		var product_id = this.dataset.product;
 		var action = this.dataset.action;
-		updateCart(product_id, action)
+		if('{{request.user}}' !== "AnonymousUser"){
+			updateCart(product_id, action)
+		}
 	})
 }
 
-function updateCart(productID, action) {
+function updateCart(product_id, action) {
 	var url = '/updateCart/'
 
 	fetch(url, {
@@ -33,7 +35,7 @@ function updateCart(productID, action) {
 				'Content-Type':'application/json',
 				'X-CSRFToken':csrftoken,
 			},
-			body: JSON.stringify({'product_id':productID, 'action':action}),
+			body: JSON.stringify({'product_id':product_id, 'action':action}),
 		})
 	.then((response)=>
 		{
@@ -41,7 +43,7 @@ function updateCart(productID, action) {
 		}		
 	)
 	.then((data) => {
-		console.log(data)
+		location.reload();
 	})
 }
 
