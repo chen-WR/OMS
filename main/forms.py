@@ -15,8 +15,11 @@ class RegisterForm(UserCreationForm):
 	def clean(self):
 		email = self.cleaned_data.get('email')
 		username = self.cleaned_data.get('username')
+		secret_key = self.cleaned_data.get('secret_key')
 		if User.objects.filter(email=email).exists():
-			raise ValidationError("account with that email already exists")
+			raise ValidationError("Account with that email already exists")
 		if User.objects.filter(username=username).exists():
-			raise ValidationError("account with that username already exists")
+			raise ValidationError("Account with that username already exists")
+		if not Secret.objects.filter(secret_key=secret_key).filter(active=True).exists():
+			raise ValidationError('Secet Key Does Not Exist')
 		return self.cleaned_data

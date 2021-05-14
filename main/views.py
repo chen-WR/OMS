@@ -145,5 +145,24 @@ def generateSecretKey(request):
 			break
 	if not Secret.objects.filter(active=True).exists():
 		secret = Secret.objects.create(secret_key=secret_key, active=True)
-	context = {'secret_key':secret.secret_key}
+		context = {'secret_key':secret.secret_key}
+	else:
+		secret = Secret.objects.get(active=True)
+		context = {'secret_key':secret.secret_key}
 	return render(request, 'main/secret.html', context)
+
+@login_required(login_url='index')
+@checkSuperuser
+def updateSecretKey(request):
+	if request.is_ajax():
+		while True:
+			secret_key = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k = 10))	
+			if not Secret.objects.filter(secret_key=secret_key).exists():
+				break
+		secret = Secret.objects.get(active=True)
+		secret.delete()
+		secret = Secret.objects.create(secret_key=secret_key, active=True)
+		context = {'secret_key':secret.secret_key}
+		return JsonResponse(context)
+	else:
+		return HttpResponseRedirect('home')
