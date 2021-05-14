@@ -29,7 +29,7 @@ class Product(models.Model):
 		try:
 			url = self.picture.url
 		except:
-			url = static("product_placeholder.png")
+			url = static("unavailable.jpg")
 		return url
 
 class Order(models.Model):
