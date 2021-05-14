@@ -1,5 +1,5 @@
 from django import forms
-from .models import User
+from .models import User, Secret
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 

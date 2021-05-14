@@ -49,6 +49,7 @@ function updateCart(product_id, action) {
 	})
 }
 
+// Ajax secret key
 secretForm.addEventListener('submit', e=>{
 	e.preventDefault()
 	$.ajax({
