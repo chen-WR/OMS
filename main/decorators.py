@@ -4,7 +4,7 @@ from django.shortcuts import redirect
 def checkLogin(func):
 	def wrapper(request, *args, **kwargs):
 		if request.user.is_authenticated:
-			return redirect('/home')
+			return redirect('home')
 		else:
 			return func(request, *args, **kwargs)
 	return wrapper
@@ -15,7 +15,7 @@ def checkSuperuser(func):
 		if not request.user.is_authenticated:
 			return redirect('/')
 		elif not request.user.is_superuser:
-			return redirect("/home")
+			return redirect("home")
 		else:
 			return func(request, *args, **kwargs)
 	return wrapper

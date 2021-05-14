@@ -5,7 +5,7 @@
 	<h1>Orders History</h1>
 	{% for order in orders %}
 		<ul class="list-group">
-			<li class="list-group-item">Confirmation Number:<a href="/viewOrder/{{order.confirmation_number}}">{{order.confirmation_number}}</a><br>Order Date:{{order.date}}<br>Warehouse Confirm: {{order.confirm}}</li>
+			<li class="list-group-item">Confirmation Number:<a href="{% url 'viewOrder' confirmation_number=order.confirmation_number %}">{{order.confirmation_number}}</a><br>Order Date:{{order.date}}<br>Warehouse Confirm: {{order.confirm}}</li>
 		</ul>
 	{% endfor %}
 {% endblock content %}

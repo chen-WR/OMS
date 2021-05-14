@@ -18,7 +18,7 @@ import random
 def index(request):
 	# Currently Not needed
 	# updateData()
-	return redirect('/login')
+	return redirect('logins')
 
 @checkLogin
 def logins(request):
@@ -29,22 +29,22 @@ def logins(request):
 			password = request.POST['password']
 			user = authenticate(username=username, password=password)
 			login(request, user)
-			return redirect("/home")
+			return redirect("home")
 	else:
 		form = AuthenticationForm()
 	return render(request, 'main/login.html',context = {"form":form})
 
 def logouts(request):
 	logout(request)
-	return redirect("/")
+	return redirect("index")
 
-@login_required(login_url='/')
+@login_required(login_url='index')
 def home(request):
 	orders = Order.objects.filter(user=request.user, checkout=True)
 	context = {'orders': orders}
 	return render(request, 'main/home.html', context)
 
-@login_required(login_url='/')
+@login_required(login_url='index')
 def product(request):
 	order, create = Order.objects.get_or_create(user=request.user, checkout=False)
 	carts = order.cart_set.all()
@@ -52,14 +52,14 @@ def product(request):
 	context = {'products':products, 'carts':carts}
 	return render(request, 'main/product.html', context)
 
-@login_required(login_url='/')
+@login_required(login_url='index')
 def cart(request):
 	order, create = Order.objects.get_or_create(user=request.user, checkout=False)
 	carts = order.cart_set.all()
 	context = {'carts':carts, 'order':order}
 	return render(request, 'main/cart.html', context)
 
-@login_required(login_url='/')
+@login_required(login_url='index')
 def checkout(request):
 	if request.method == "POST":
 		form = CheckoutForm(request.POST)
@@ -77,32 +77,35 @@ def checkout(request):
 	context = {'carts':carts, 'order':order, 'form':form}
 	return render(request, 'main/checkout.html', context)
 
-@login_required(login_url='/')
+@login_required(login_url='index')
 def ordered(request, confirmation_number):
 	return render(request, 'main/ordered.html', {'confirmation_number':confirmation_number})
 
-@login_required(login_url='/')
+@login_required(login_url='index')
 def viewOrder(request, confirmation_number):
 	order = Order.objects.get(user=request.user, checkout=True, confirmation_number=confirmation_number)
 	carts = order.cart_set.all()
-	context = {'carts':carts}
+	context = {'order':order, 'carts':carts}
 	return render(request, 'main/vieworder.html', context)
 
+@login_required(login_url='index')
 def updateCart(request):
-	data = json.loads(request.body)
-	product_id = data['product_id']
-	action = data['action']
-	product = Product.objects.get(id=product_id)
-	order, create = Order.objects.get_or_create(user=request.user, checkout=False)
-	cart, create = Cart.objects.get_or_create(order=order, product=product)
-	if action == "add":
-		cart.quantity += 1
-	elif action == "remove":
-		cart.quantity -= 1
-	cart.save()
-	if cart.quantity <= 0:
-		cart.delete()
-	return JsonResponse({'data':data})
+	if request.method == "POST":
+		data = json.loads(request.body)
+		product_id = data['product_id']
+		action = data['action']
+		product = Product.objects.get(id=product_id)
+		order, create = Order.objects.get_or_create(user=request.user, checkout=False)
+		cart, create = Cart.objects.get_or_create(order=order, product=product)
+		if action == "add":
+			cart.quantity += 1
+		elif action == "remove":
+			cart.quantity -= 1
+		cart.save()
+		if cart.quantity <= 0:
+			cart.delete()
+		return JsonResponse({'data':data})
+	return redirect('home')
 
 def getConfirmationNumber():
 	while True:

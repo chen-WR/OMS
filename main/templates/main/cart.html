@@ -21,7 +21,7 @@
 		<div class="col-lg-12">
 			<div class="box-element">
 				<div class="cart-row">
-					<div style="flex: 2"></div>
+					<div style="flex: 1"></div>
 					<div style="flex: 2"><strong>Item</strong></div>
 					<div style="flex: 1"><strong>Price Per Unit</strong></div>
 					<div style="flex: 1"><strong>Unit</strong></div>
@@ -30,7 +30,7 @@
 				</div>
 				{% for cart in carts %}
 					<div class="cart-row">
-						<div style="flex: 2"><img class="row-image" src="{{ cart.product.imageURL }}"></div>
+						<div style="flex: 1"><img class="row-image" src="{{ cart.product.imageURL }}"></div>
 						<div style="flex: 2">{{cart.product.description}}</div>
 						<div style="flex: 1">${{cart.product.unit_price}}</div>
 						<div style="flex: 1"><strong>{{cart.product.unit}}</strong></div>

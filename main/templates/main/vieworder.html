@@ -2,35 +2,31 @@
 {% load static %}
 
 {% block content %}
-	<div class='row'>
-		<div class="col-lg-12">
-			<div class="box-element">
-				<div class="cart-row">
-					<div style="flex: 2"></div>
-					<div style="flex: 2"><strong>Item</strong></div>
-					<div style="flex: 1"><strong>Price Per Unit</strong></div>
-					<div style="flex: 1"><strong>Unit</strong></div>
-					<div style="flex: 1"><strong>Quantity</strong></div>
-					<div style="flex: 1"><strong>Total</strong></div>
-				</div>
-				{% for cart in carts %}
-					<div class="cart-row">
-						<div style="flex: 2"><img class="row-image" src="{{ cart.product.imageURL }}"></div>
-						<div style="flex: 2">{{cart.product.description}}</div>
-						<div style="flex: 1">${{cart.product.unit_price}}</div>
-						<div style="flex: 1"><strong>{{cart.product.unit}}</strong></div>
-						<div style="flex: 1">
-							<p class='quantity'>{{cart.quantity}}</p>
-							<div class="quantity">
-								<img data-product ={{cart.product.id}} data-action="add" class="chg-quantity update-cart" src="{% static 'up.png' %}">
-								<img data-product ={{cart.product.id}} data-action="remove" class="chg-quantity update-cart" src="{% static 'down.png' %}">
-							</div>
-						</div>
-						<div style="flex: 1">${{cart.getItemTotal}}</div>
+
+<h1>Order Detail</h1>
+<h3>Confirmation Number:{{order.confirmation_number}} </h3>
+<h5>Total:${{order.getCartTotal}}</h3>
+{% for cart in carts %}
+	<ul class="list-group">
+		<li class="list-group-item">
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<img class="row-image" src="{{ cart.product.imageURL }}">
 					</div>
-				{% endfor %}
+					<div class="col">
+						<p>SAP: {{cart.product.sap}}<br>Product: {{cart.product.category}}, {{cart.product.description}}<br>{{cart.product.unit}} per unit, ${{cart.product.unit_price}} per unit<br></p>
+					</div>
+					<div class="col">
+						<p>Quantity: {{cart.quantity}}<br>Total: ${{cart.getItemTotal}}
+						</p>
+					</div>
+				</div>
 			</div>
-		</div>
-	</div>
+		</li>
+	</ul>
+{% endfor %}
+
+<a style="float: left; margin: 1px;" class="btn btn-success "href="{% url 'home' %}">Back</a>
 
 {% endblock content %}

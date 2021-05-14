@@ -37,11 +37,9 @@ function updateCart(product_id, action) {
 			},
 			body: JSON.stringify({'product_id':product_id, 'action':action}),
 		})
-	.then((response)=>
-		{
-			return response.json();
-		}		
-	)
+	.then((response)=>{
+		return response.json();
+	})
 	.then((data) => {
 		location.reload();
 	})
