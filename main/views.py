@@ -8,8 +8,8 @@ from django.templatetags.static import static
 from django.utils import timezone
 from django.conf import settings
 from django.contrib import messages
-from .models import User, Product, Cart, Order
-from .forms import CheckoutForm
+from .models import User, Product, Cart, Order, Secret
+from .forms import CheckoutForm, RegisterForm
 from .updateDB import updateData
 import string
 import json
@@ -21,6 +21,21 @@ def index(request):
 	return redirect('logins')
 
 @checkLogin
+def register(request):
+	if request.method == 'POST':
+		form = RegisterForm(request.POST)
+		if form.is_valid():
+			user = form.save()
+			return redirect('home')
+		else:				
+			errors = form.errors.get_json_data()
+			for error in errors:
+				message = errors[error][0]['message'] 
+				messages.error(request, message)
+	form = RegisterForm() 
+	return render(request, 'main/register.html', {'form': form })
+
+@checkLogin
 def logins(request):
 	if request.method == 'POST':
 		form = AuthenticationForm(request, request.POST)
@@ -30,8 +45,9 @@ def logins(request):
 			user = authenticate(username=username, password=password)
 			login(request, user)
 			return redirect("home")
-	else:
-		form = AuthenticationForm()
+		else:
+			messages.error(request, "Incorrect Username or Password")
+	form = AuthenticationForm()
 	return render(request, 'main/login.html',context = {"form":form})
 
 def logouts(request):
@@ -40,7 +56,10 @@ def logouts(request):
 
 @login_required(login_url='index')
 def home(request):
-	orders = Order.objects.filter(user=request.user, checkout=True)
+	if request.user.is_superuser:
+		orders = Order.objects.filter(checkout=True)
+	else:
+		orders = Order.objects.filter(user=request.user, checkout=True)
 	context = {'orders': orders}
 	return render(request, 'main/home.html', context)
 
@@ -83,7 +102,10 @@ def ordered(request, confirmation_number):
 
 @login_required(login_url='index')
 def viewOrder(request, confirmation_number):
-	order = Order.objects.get(user=request.user, checkout=True, confirmation_number=confirmation_number)
+	if request.user.is_superuser:
+		order = Order.objects.get(checkout=True, confirmation_number=confirmation_number)
+	else:
+		order = Order.objects.get(user=request.user, checkout=True, confirmation_number=confirmation_number)
 	carts = order.cart_set.all()
 	context = {'order':order, 'carts':carts}
 	return render(request, 'main/vieworder.html', context)
@@ -113,3 +135,12 @@ def getConfirmationNumber():
 		if not Order.objects.filter(confirmation_number=confirmation_number).exists():
 			break
 	return confirmation_number
+
+@login_required(login_url='index')
+@checkSuperuser
+def generateSecretKey(request):
+	while True:
+		secret_key = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k = 10))	
+		if not Secret.objects.filter(secret_key=secret_key).exists():
+			break
+	return render(request, 'main/secret.html', {})

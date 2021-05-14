@@ -10,6 +10,11 @@ class User(AbstractUser):
 	def __str__(self):
 		return f"{self.username}"
 
+class Secret(models.Model):
+	id = models.AutoField(primary_key=True)
+	secret_key = models.CharField(max_length=10, blank=True, null=True)
+	active = models.BooleanField(default=False)
+
 class Product(models.Model):
 	id = models.AutoField(primary_key=True)
 	category = models.CharField(max_length=100, null=True, blank=True)

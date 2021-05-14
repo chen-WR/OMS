@@ -13,7 +13,7 @@ def checkLogin(func):
 def checkSuperuser(func):
 	def wrapper(request, *args, **kwargs):
 		if not request.user.is_authenticated:
-			return redirect('/')
+			return redirect('home')
 		elif not request.user.is_superuser:
 			return redirect("home")
 		else:
