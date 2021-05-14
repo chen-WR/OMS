@@ -143,4 +143,7 @@ def generateSecretKey(request):
 		secret_key = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k = 10))	
 		if not Secret.objects.filter(secret_key=secret_key).exists():
 			break
-	return render(request, 'main/secret.html', {})
+	if not Secret.objects.filter(active=True).exists():
+		secret = Secret.objects.create(secret_key=secret_key, active=True)
+	context = {'secret_key':secret.secret_key}
+	return render(request, 'main/secret.html', context)
