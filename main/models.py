@@ -27,7 +27,7 @@ class Product(models.Model):
 	@property
 	def imageURL(self):
 		try:
-			url = self.picture.url
+			url = static(self.picture.url)
 		except:
 			url = static("unavailable.jpg")
 		return url
