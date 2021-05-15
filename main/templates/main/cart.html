@@ -8,8 +8,8 @@
 				<a class="btn button-outline-dark" href="{% url 'product' %}">Continue Shopping</a>
 				<table class="table">
 					<tr>
-						<th><h5>Items: <strong>{{order.getCartCount}}</strong></h5></th>
-						<th><h5>Total: <strong>${{order.getCartTotal}}</strong></h5></th>
+						<th><h5>Items: <strong id="order-count">{{order.getCartCount}}</strong></h5></th>
+						<th><h5>Total: <strong id="order-total">${{order.getCartTotal}}</strong></h5></th>
 						{% if order.getCartCount != 0 or order.getCartTotal != 0 %}
 						<th><a style="float: right; margin: 1px;" class="btn btn-success "href="{% url 'checkout' %}">Checkout</a></th>
 						{% endif %}
@@ -27,22 +27,23 @@
 					<div style="flex: 1"><strong>Unit</strong></div>
 					<div style="flex: 1"><strong>Quantity</strong></div>
 					<div style="flex: 1"><strong>Total</strong></div>
-					<div style="flex: 1"><strong></strong></div>
+					<div style="flex: 1"><strong>Action</strong></div>
 				</div>
 				{% for cart in carts %}
-					<div class="cart-row">
+					<div class="cart-row" id='{{cart.product.id}}-row'>
 						<div style="flex: 1"><img class="row-image" src="{{ cart.product.imageURL }}"></div>
 						<div style="flex: 2">{{cart.product.description}}</div>
 						<div style="flex: 1">${{cart.product.unit_price}}</div>
 						<div style="flex: 1">{{cart.product.unit}}</div>
 						<div style="flex: 1">
-							<p class='quantity'>{{cart.quantity}}</p>
+							<div class='quantity' id='{{cart.product.id}}-cart-count'>{{cart.quantity}}</div>
 							<div class="quantity">
 								<img data-product ={{cart.product.id}} data-action="add" class="chg-quantity update-cart" src="{% static 'up.png' %}">
 								<img data-product ={{cart.product.id}} data-action="remove" class="chg-quantity update-cart" src="{% static 'down.png' %}">	
 							</div>
+
 						</div>
-						<div style="flex: 1">${{cart.getItemTotal}}</div>
+						<div id='{{cart.product.id}}-cart-total'style="flex: 1">${{cart.getItemTotal}}</div>
 						<div style="flex: 1"><p data-product ={{cart.product.id}} data-action="delete" class="chg-quantity update-cart">Delete</p></div>
 					</div>
 					

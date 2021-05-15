@@ -11,11 +11,13 @@
 					<h6><strong>Category: {{product.category}}</strong></h6>
 					<h6><strong>Desc: {{product.description}}</strong></h6>
 					<h6><strong>Size: {{product.size}}</strong></h6>
-					{% for cart in carts %}
-						{% if cart.product.sap == product.sap %}
-							<h4>In Cart:{{cart.quantity}}</h4>
-						{% endif %}
-					{% endfor %}
+ 					<div id="{{product.id}}-product">
+						{% for cart in carts %}
+							{% if cart.product.sap == product.sap %}
+								<div id='{{product.id}}-quantity'>In Cart:{{cart.quantity}}</div>
+							{% endif %}
+						{% endfor %}
+					</div>
 					<button data-product ={{product.id}} data-action="add" class="btn btn-outline-secondary add-btn update-cart">Add To Cart</button>
 					<h4 style="display: inline-block; float: right;">{{product.unit}} for ${{product.unit_price}}</h4>
 					
