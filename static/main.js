@@ -91,6 +91,10 @@ function updateCart(product_id, action) {
 					ototal.textContent = "$"+orderTotal;
 					var ocount = document.getElementById('order-count');
 					ocount.textContent = orderCount;
+					if(orderCount == 0) {
+						var checkoutButton = document.getElementById('checkout-button')
+						checkoutButton.remove()
+					}
 				}
 			}
 			// delete operation
@@ -101,6 +105,10 @@ function updateCart(product_id, action) {
 				ototal.textContent = "$"+orderTotal;
 				var ocount = document.getElementById('order-count');
 				ocount.textContent = orderCount;
+				if(orderCount == 0) {
+					var checkoutButton = document.getElementById('checkout-button')
+					checkoutButton.remove()
+				}
 			}
 		},
 		error: function(error){
