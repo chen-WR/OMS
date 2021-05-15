@@ -112,24 +112,28 @@ def viewOrder(request, confirmation_number):
 
 @login_required(login_url='index')
 def updateCart(request):
-	if request.method == "POST":
-		data = json.loads(request.body)
-		product_id = data['product_id']
-		action = data['action']
+	if request.is_ajax():
+		product_id = request.POST.get('product_id')
+		action = request.POST.get('action')
 		product = Product.objects.get(id=product_id)
 		order, create = Order.objects.get_or_create(user=request.user, checkout=False)
 		cart, create = Cart.objects.get_or_create(order=order, product=product)
 		if action == "add":
 			cart.quantity += 1
+			cart.save()
 		elif action == "remove":
 			cart.quantity -= 1
+			cart.save()
 		elif action == "delete":
 			cart.quantity = 0
 		cart.save()
 		if cart.quantity <= 0:
 			cart.delete()
-		return JsonResponse({'data':data})
-	return redirect('home')
+		itemTotal = cart.getItemTotal
+		orderTotal = order.getCartTotal
+		orderCount = order.getCartCount
+		return JsonResponse({'action':action,'product_id':product_id,'quantity':cart.quantity,'itemTotal':itemTotal,'orderTotal':orderTotal,'orderCount':orderCount})
+	return HttpResponseRedirect('home')
 
 def getConfirmationNumber():
 	while True:
