@@ -123,6 +123,8 @@ def updateCart(request):
 			cart.quantity += 1
 		elif action == "remove":
 			cart.quantity -= 1
+		elif action == "delete":
+			cart.quantity = 0
 		cart.save()
 		if cart.quantity <= 0:
 			cart.delete()

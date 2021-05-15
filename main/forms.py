@@ -7,7 +7,8 @@ class CheckoutForm(forms.Form):
 	email = forms.EmailField(label="Email")
 
 class RegisterForm(UserCreationForm):
-	secret_key = forms.CharField(label="Secret Key")
+	store_name = forms.CharField(label="Store Name", help_text="Store Location and Name")
+	secret_key = forms.CharField(label="Secret Key", help_text="Secret Key from Admin")
 	class Meta:
 		model = User
 		fields = ['username', 'email',  'password1', 'password2', 'store_name', 'secret_key']

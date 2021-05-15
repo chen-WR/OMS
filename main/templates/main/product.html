@@ -18,7 +18,7 @@
 					{% endfor %}
 					<button data-product ={{product.id}} data-action="add" class="btn btn-outline-secondary add-btn update-cart">Add To Cart</button>
 					<h4 style="display: inline-block; float: right;">{{product.unit}} for ${{product.unit_price}}</h4>
-					<a class="btn btn-outline-success"href="{% url 'cart' %}">View Cart</a>
+					
 				</div>
 			</div>
 		{% endfor %}

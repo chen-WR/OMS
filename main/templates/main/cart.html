@@ -27,22 +27,25 @@
 					<div style="flex: 1"><strong>Unit</strong></div>
 					<div style="flex: 1"><strong>Quantity</strong></div>
 					<div style="flex: 1"><strong>Total</strong></div>
+					<div style="flex: 1"><strong></strong></div>
 				</div>
 				{% for cart in carts %}
 					<div class="cart-row">
 						<div style="flex: 1"><img class="row-image" src="{{ cart.product.imageURL }}"></div>
 						<div style="flex: 2">{{cart.product.description}}</div>
 						<div style="flex: 1">${{cart.product.unit_price}}</div>
-						<div style="flex: 1"><strong>{{cart.product.unit}}</strong></div>
+						<div style="flex: 1">{{cart.product.unit}}</div>
 						<div style="flex: 1">
 							<p class='quantity'>{{cart.quantity}}</p>
 							<div class="quantity">
 								<img data-product ={{cart.product.id}} data-action="add" class="chg-quantity update-cart" src="{% static 'up.png' %}">
-								<img data-product ={{cart.product.id}} data-action="remove" class="chg-quantity update-cart" src="{% static 'down.png' %}">
+								<img data-product ={{cart.product.id}} data-action="remove" class="chg-quantity update-cart" src="{% static 'down.png' %}">	
 							</div>
 						</div>
 						<div style="flex: 1">${{cart.getItemTotal}}</div>
+						<div style="flex: 1"><p data-product ={{cart.product.id}} data-action="delete" class="chg-quantity update-cart">Delete</p></div>
 					</div>
+					
 				{% endfor %}
 			</div>
 		</div>
