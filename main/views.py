@@ -86,6 +86,7 @@ def checkout(request):
 		order = Order.objects.get(user=request.user, checkout=False)
 		order.checkout = True
 		order.comment = request.POST.get('comment')
+		order.email = request.POST.get('email')
 		order.confirmation_number = confirmation_number
 		order.date = timezone.now()
 		order.save()

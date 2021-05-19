@@ -2,45 +2,51 @@
 {% load static %}
 
 {% block content %}
-
-<h1>Order Detail</h1>
-<h1><b><STRONG>Tracking Number: {{order.tracking_number}}</STRONG></b></h1>
-<h2>Confirmation Number:{{order.confirmation_number}} </h2>
-{% if order.confirm %}
-	<h4>Order Status: Shipped</h4>
-{% elif not order.confirm %}
-		<h4>Order Status: Not Shipped</h4>
-{% endif %}
-<h3>Total:${{order.getCartTotal}}</h3>
-<h3>New Total:${{order.getShippedTotal}}</h3>
-
-{% for cart in carts %}
-	<ul class="list-group">
-		<li class="list-group-item">
-			<div class="container">
-				<div class="row">
-					<div class="col">
-						<img class="row-image" src="{{ cart.product.imageURL }}">
-					</div>
-					<div class="col">
-						<p>SAP: {{cart.product.sap}}<br>Product: {{cart.product.category}}, {{cart.product.description}}<br>{{cart.product.unit}} per unit, ${{cart.product.unit_price}} per unit<br></p>
-					</div>
-					<div class="col">
-						<p>Quantity: {{cart.quantity}}<br>Total: ${{cart.getItemTotal}}
-						</p>
-					</div>
-					<div class="col">
-						<p>Shipped Quantity: {{cart.shipped_quantity}}</p>
-						<p>Updated Total: ${{cart.getShipableTotal}}</p>
+<div>
+	<a class="btn btn-success "href="{% url 'home' %}">Back</a>
+</div>
+<div>
+	<h1>Order Detail</h1>
+	<h2>Confirmation Number:{{order.confirmation_number}} </h2>
+	{% if order.confirm %}
+		<h4>Order Status: Shipped</h4>
+		<h4>{{order.tracking_number}}</h4>
+	{% elif not order.confirm %}
+			<h4>Order Status: Not Shipped</h4>
+	{% endif %}
+	<h4>Oiginal Total:${{order.getCartTotal}}</h4>
+	<h2>New Total:${{order.getShippedTotal}}</h2>
+	<h3>Store Order Comments:</h3>
+	<div style="border: 3px solid rgb(0,0,0); width: 300px; height: 100px;">
+		<p>{{order.comment}}</p>
+	</div>
+</div>
+<div>
+	{% csrf_token %}
+	<h1><STRONG>Items</STRONG></h1>
+	{% for cart in carts %}
+		<ul class="list-group">
+			<li class="list-group-item">
+				<div class="container">
+					<div class="row">
+						<div class="col">
+							<img class="row-image" src="{{ cart.product.imageURL }}">
+						</div>
+						<div class="col">
+							<p>SAP: {{cart.product.sap}}<br>Product: {{cart.product.category}}, {{cart.product.description}}<br>{{cart.product.unit}} per unit, ${{cart.product.unit_price}} per unit<br></p>
+						</div>
+						<div class="col">
+							<p>Ordered Quantity: {{cart.quantity}}<br>Total: ${{cart.getItemTotal}}
+							</p>
+						</div>
+						<div class="col">
+							<p>Shipped Quantity: {{cart.shipped_quantity}}</p>
+							<p>Updated Total: ${{cart.getShipableTotal}}</p>
+						</div>
 					</div>
 				</div>
-			</div>
-		</li>
-	</ul>
-{% endfor %}
-<h4>Comments</h4>
-<p>{{order.comment}}</p>
-
-<a style="float: left; margin: 1px;" class="btn btn-success "href="{% url 'home' %}">Back</a>
-
+			</li>
+		</ul>
+	{% endfor %}
+</div>
 {% endblock content %}

@@ -6,6 +6,7 @@ from django.templatetags.static import static
 class User(AbstractUser):
 	id = models.AutoField(primary_key=True)
 	store_name = models.CharField(max_length=100)
+	store_location = models.PositiveSmallIntegerField()
 	allow_edit = models.BooleanField(default=False)
 
 	def __str__(self):
@@ -41,6 +42,7 @@ class Product(models.Model):
 class Order(models.Model):
 	id = models.AutoField(primary_key=True)
 	user = models.ForeignKey(User, null=True, blank=True, on_delete = models.SET_NULL)
+	email = models.EmailField(null=True, blank=True)
 	date = models.DateTimeField(default=timezone.now)
 	checkout = models.BooleanField(default=False)
 	confirm = models.BooleanField(default=False)

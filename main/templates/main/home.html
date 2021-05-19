@@ -11,7 +11,9 @@
 	{% for order in orders %}
 		<ul class="list-group">
 			<li class="list-group-item">
-				Store:{{order.user.store_name}}
+				Store Name: {{order.user.store_name}}
+				<br>
+				Store Location: {{order.user.store_location}}
 				<br>
 				Confirmation Number:<a href="{% url 'viewOrder' confirmation_number=order.confirmation_number %}">{{order.confirmation_number}}</a>
 				<br>
