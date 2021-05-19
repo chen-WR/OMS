@@ -1,0 +1,60 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<h1>Order Detail</h1>
+<h2>Confirmation Number:{{order.confirmation_number}} </h2>
+{% if order.confirm %}
+	<h4>Order Status: Shipped</h4>
+{% elif not order.confirm %}
+		<h4>Order Status: Not Shipped</h4>
+{% endif %}
+<h3>Total:${{order.getCartTotal}}</h3>
+<h3>New Total:${{order.getShippedTotal}}</h3>
+
+<form method="post">
+	{% csrf_token %}
+	{% for cart in carts %}
+		<ul class="list-group">
+			<li class="list-group-item">
+				<div class="container">
+					<div class="row">
+						<div class="col">
+							<img class="row-image" src="{{ cart.product.imageURL }}">
+						</div>
+						<div class="col">
+							<p>SAP: {{cart.product.sap}}<br>Product: {{cart.product.category}}, {{cart.product.description}}<br>{{cart.product.unit}} per unit, ${{cart.product.unit_price}} per unit<br></p>
+						</div>
+						<div class="col">
+							<p>Ordered Quantity: {{cart.quantity}}<br>Total: ${{cart.getItemTotal}}
+							</p>
+						</div>
+						<div class="col">
+							<p>Shipped Quantity: {{cart.shipped_quantity}}</p>
+							<input style="width: 130px;" type="number" name="{{cart.product.sap}}-shipped-quantity" min="0" max="{{cart.quantity}}" placeholder="Update Quantity">
+							<p>Updated Total: ${{cart.getShipableTotal}}</p>
+						</div>
+					</div>
+				</div>
+			</li>
+		</ul>
+	{% endfor %}
+	<h4>Comments</h4>
+	<div style="border: 1px solid green; width: 300px; height: 150px;">{{order.comment}}</div>
+	{% for message in messages %}
+		<script type="text/javascript">alert("{{message}}")</script>
+	{% endfor %}
+	<h4>Tracking Number</h4>
+	<div style="border: 1px solid green; width: 300px;">{{order.tracking_number}}</div>
+	<br>
+	<input style="float: left; width: 250px;" type="text" name="tracking" placeholder="Add or Update Tracking Number">
+	<br>
+	<br>
+	<a style="float: left; margin: 1px;" class="btn btn-success "href="{% url 'home' %}">Back</a>
+	<button style="float: right;"  type="submit" class="btn btn-success">Submit</button>
+	<br>
+	<br>
+</form>	
+
+{% endblock content %}

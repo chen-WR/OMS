@@ -3,13 +3,13 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.decorators import login_required
-from .decorators import checkLogin, checkSuperuser
+from .decorators import checkLogin, checkSuperuser, checkCart, checkEdit
 from django.templatetags.static import static
 from django.utils import timezone
 from django.conf import settings
 from django.contrib import messages
 from .models import User, Product, Cart, Order, Secret
-from .forms import CheckoutForm, RegisterForm
+from .forms import RegisterForm
 from .updateDB import updateData
 import string
 import json
@@ -56,10 +56,10 @@ def logouts(request):
 
 @login_required(login_url='index')
 def home(request):
-	if request.user.is_superuser:
-		orders = Order.objects.filter(checkout=True)
+	if request.user.allow_edit:
+		orders = Order.objects.filter(checkout=True).order_by('-date')		
 	else:
-		orders = Order.objects.filter(user=request.user, checkout=True)
+		orders = Order.objects.filter(user=request.user, checkout=True).order_by('-date')
 	context = {'orders': orders}
 	return render(request, 'main/home.html', context)
 
@@ -79,21 +79,20 @@ def cart(request):
 	return render(request, 'main/cart.html', context)
 
 @login_required(login_url='index')
+@checkCart
 def checkout(request):
 	if request.method == "POST":
-		form = CheckoutForm(request.POST)
-		if form.is_valid():
-			confirmation_number = getConfirmationNumber()
-			order = Order.objects.get(user=request.user, checkout=False)
-			order.checkout = True
-			order.confirmation_number = confirmation_number
-			order.date = timezone.now()
-			order.save()
-			return HttpResponseRedirect(f'/ordered/{confirmation_number}')
+		confirmation_number = getConfirmationNumber()
+		order = Order.objects.get(user=request.user, checkout=False)
+		order.checkout = True
+		order.comment = request.POST.get('comment')
+		order.confirmation_number = confirmation_number
+		order.date = timezone.now()
+		order.save()
+		return HttpResponseRedirect(f'/ordered/{confirmation_number}')
 	order, create = Order.objects.get_or_create(user=request.user, checkout=False)
 	carts = order.cart_set.all()
-	form = CheckoutForm() 
-	context = {'carts':carts, 'order':order, 'form':form}
+	context = {'carts':carts, 'order':order}
 	return render(request, 'main/checkout.html', context)
 
 @login_required(login_url='index')
@@ -102,10 +101,7 @@ def ordered(request, confirmation_number):
 
 @login_required(login_url='index')
 def viewOrder(request, confirmation_number):
-	if request.user.is_superuser:
-		order = Order.objects.get(checkout=True, confirmation_number=confirmation_number)
-	else:
-		order = Order.objects.get(user=request.user, checkout=True, confirmation_number=confirmation_number)
+	order = Order.objects.get(checkout=True, confirmation_number=confirmation_number)
 	carts = order.cart_set.all()
 	context = {'order':order, 'carts':carts}
 	return render(request, 'main/vieworder.html', context)
@@ -133,7 +129,7 @@ def updateCart(request):
 		orderTotal = order.getCartTotal
 		orderCount = order.getCartCount
 		return JsonResponse({'action':action,'product_id':product_id,'quantity':cart.quantity,'itemTotal':itemTotal,'orderTotal':orderTotal,'orderCount':orderCount})
-	return HttpResponseRedirect('home')
+	return HttpResponseRedirect('/home')
 
 def getConfirmationNumber():
 	while True:
@@ -171,4 +167,36 @@ def updateSecretKey(request):
 		context = {'secret_key':secret.secret_key}
 		return JsonResponse(context)
 	else:
-		return HttpResponseRedirect('home')
+		return HttpResponseRedirect('/home')
+
+@login_required(login_url='index')
+@checkEdit
+def editOrder(request, confirmation_number):
+	if request.method == "POST":
+		order = Order.objects.get(checkout=True, confirmation_number=confirmation_number)
+		carts = order.cart_set.all()
+		for cart in carts:
+			shippable = request.POST.get(f'{cart.product.sap}-shipped-quantity')
+			if shippable != "":
+				if int(shippable) <= cart.quantity:
+					cart.shipped_quantity = int(shippable)
+					cart.save()
+		tracking_number = request.POST.get('tracking')
+		if tracking_number == "delete":
+			order.tracking_number = None
+			order.save()
+		elif tracking_number != "" and order.getShippedCount != 0 :
+			order.tracking_number = tracking_number
+			order.save()
+		elif tracking_number != "" and order.getShippedCount == 0:
+			messages.error(request, "Please Update Quantity Before Updating Tracking Info")
+		if order.tracking_number is not None:
+			order.confirm = True
+			order.save()
+		elif order.tracking_number is None:
+			order.confirm = False
+			order.save()
+	order = Order.objects.get(checkout=True, confirmation_number=confirmation_number)
+	carts = order.cart_set.all()
+	context = {'order':order, 'carts':carts}
+	return render(request, 'main/editorder.html', context)

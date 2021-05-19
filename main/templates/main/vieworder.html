@@ -4,8 +4,16 @@
 {% block content %}
 
 <h1>Order Detail</h1>
-<h3>Confirmation Number:{{order.confirmation_number}} </h3>
-<h5>Total:${{order.getCartTotal}}</h3>
+<h1><b><STRONG>Tracking Number: {{order.tracking_number}}</STRONG></b></h1>
+<h2>Confirmation Number:{{order.confirmation_number}} </h2>
+{% if order.confirm %}
+	<h4>Order Status: Shipped</h4>
+{% elif not order.confirm %}
+		<h4>Order Status: Not Shipped</h4>
+{% endif %}
+<h3>Total:${{order.getCartTotal}}</h3>
+<h3>New Total:${{order.getShippedTotal}}</h3>
+
 {% for cart in carts %}
 	<ul class="list-group">
 		<li class="list-group-item">
@@ -21,11 +29,17 @@
 						<p>Quantity: {{cart.quantity}}<br>Total: ${{cart.getItemTotal}}
 						</p>
 					</div>
+					<div class="col">
+						<p>Shipped Quantity: {{cart.shipped_quantity}}</p>
+						<p>Updated Total: ${{cart.getShipableTotal}}</p>
+					</div>
 				</div>
 			</div>
 		</li>
 	</ul>
 {% endfor %}
+<h4>Comments</h4>
+<p>{{order.comment}}</p>
 
 <a style="float: left; margin: 1px;" class="btn btn-success "href="{% url 'home' %}">Back</a>
 

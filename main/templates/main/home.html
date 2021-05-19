@@ -10,7 +10,23 @@
 	<br>
 	{% for order in orders %}
 		<ul class="list-group">
-			<li class="list-group-item">Store:{{order.user.store_name}}<br>Confirmation Number:<a href="{% url 'viewOrder' confirmation_number=order.confirmation_number %}">{{order.confirmation_number}}</a><br>Order Date:{{order.date}}<br>Warehouse Confirm: {{order.confirm}}</li>
+			<li class="list-group-item">
+				Store:{{order.user.store_name}}
+				<br>
+				Confirmation Number:<a href="{% url 'viewOrder' confirmation_number=order.confirmation_number %}">{{order.confirmation_number}}</a>
+				<br>
+				Order Date:{{order.date}}
+				<br>
+				{% if order.confirm %}
+					<p>Order Status: Shipped</p>
+					<p>Tracking Number: {{order.tracking_number}}</p>
+				{% elif not order.confirm %}
+					<p>Order Status: Not Shipped</p> 
+				{% endif %}
+				{% if request.user.allow_edit %} 
+					<a href="{% url 'editOrder' confirmation_number=order.confirmation_number %}">Edit Order</a>
+				{% endif %}
+			</li>
 		</ul>
 	{% endfor %}
 {% endblock content %}

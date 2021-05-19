@@ -14,12 +14,17 @@
 	{% endfor %}
 	<br>
 	<h2 style="float:left;">Total: ${{order.getCartTotal}}</h2>
-	<form style="float: right;" method="POST">
-  		{% csrf_token %}
-  		{{ form.email.label }}
-  		{{ form.email }}
-  		<br>
-  		<br>
+	<br>
+	<br>
+	<form method="POST">
+		{% csrf_token %}
+		<input type="email" name="email" placeholder="Email Required" required>
+		<br>
+		<br>
+		<textarea style="width: 50%; resize: vertical; height: 150px;"  type="text" name="comment" placeholder="Any comment to the warehouse"></textarea>
+		<br>
   		<button style="float: right;"  type="submit" class="btn btn-success">Place Order</button>
+  		<br>
+  		<br>
 	</form>
 {% endblock content %}

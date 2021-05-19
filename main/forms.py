@@ -3,9 +3,6 @@ from .models import User, Secret
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 
-class CheckoutForm(forms.Form):
-	email = forms.EmailField(label="Email")
-
 class RegisterForm(UserCreationForm):
 	store_name = forms.CharField(label="Store Name", help_text="Store Location and Name")
 	secret_key = forms.CharField(label="Secret Key", help_text="Secret Key from Admin")

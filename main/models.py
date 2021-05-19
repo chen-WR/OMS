@@ -6,6 +6,7 @@ from django.templatetags.static import static
 class User(AbstractUser):
 	id = models.AutoField(primary_key=True)
 	store_name = models.CharField(max_length=100)
+	allow_edit = models.BooleanField(default=False)
 
 	def __str__(self):
 		return f"{self.username}"
@@ -44,10 +45,18 @@ class Order(models.Model):
 	checkout = models.BooleanField(default=False)
 	confirm = models.BooleanField(default=False)
 	confirmation_number = models.CharField(max_length=30, blank=True, null=True)
+	comment = models.CharField(max_length=300, blank=True, null=True)
+	tracking_number = models.CharField(max_length=100, blank=True, null=True)
 
 	def __str__(self):
 		return f"user:{self.user}--checkout:{self.checkout}"
 
+	@property
+	def getCartList(self):
+		carts = self.cart_set.all()
+		lists = len([cart.product for cart in carts])
+		return lists
+	
 	@property
 	def getCartCount(self):
 		carts = self.cart_set.all()
@@ -59,13 +68,25 @@ class Order(models.Model):
 		carts = self.cart_set.all()
 		total = sum([cart.getItemTotal for cart in carts])
 		return total
+
+	@property
+	def getShippedCount(self):
+		carts = self.cart_set.all()
+		lists = len([cart.shipped_quantity for cart in carts if cart.shipped_quantity != 0])
+		return lists
 	
+	@property
+	def getShippedTotal(self):
+		carts = self.cart_set.all()
+		total = sum([cart.getShipableTotal for cart in carts])
+		return total	
 
 class Cart(models.Model):
 	id = models.AutoField(primary_key=True)
 	order = models.ForeignKey(Order, null=True, blank=True,on_delete = models.SET_NULL)
 	product = models.ForeignKey(Product, null=True, blank=True,on_delete = models.SET_NULL)
 	quantity = models.IntegerField(default=0, blank=True, null=True)
+	shipped_quantity = models.IntegerField(default=0, blank=True, null=True)
 
 	def __str__(self):
 		return f"product:{self.product}"
@@ -79,6 +100,13 @@ class Cart(models.Model):
 	def getItemCount(self):
 		total = self.product.unit * self.quantity
 		return total
+
+	@property
+	def getShipableTotal(self):
+		total = self.product.unit_price * self.shipped_quantity
+		return total
+
+	
 	
 
 
