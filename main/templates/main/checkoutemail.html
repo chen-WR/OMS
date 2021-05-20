@@ -1,8 +1,9 @@
 {% autoescape off %} 
-{% for cart in carts %}\
-	Item: {{cart.proudct.description}}
-	Quantity: {{cart.quantity}}
-	Total: {{cart.getItemTotal}}
-{% endfor %}
+Order Date: {{order.date}}
+Order Confirmation Number: {{order.confirmation_number}}
+Order Count: {{order.getCartList}} 
 Order Total: {{order.getCartTotal}}
+Comments: {{order.comment}}
+To View Order: {% if request.is_secure %}HTTPS{% else %}HTTP{% endif %}://{{ domain }}{% url 'viewOrder' confirmation_number=order.confirmation_number %}
+To Edit Order(Warehouse Only): {% if request.is_secure %}HTTPS{% else %}HTTP{% endif %}://{{ domain }}{% url 'editOrder' confirmation_number=order.confirmation_number %}
 {% endautoescape %}

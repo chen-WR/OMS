@@ -2,6 +2,7 @@ from django.http import JsonResponse, Http404, HttpResponse, HttpResponseRedirec
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
+from django.contrib.sites.shortcuts import get_current_site
 from django.contrib.auth.decorators import login_required
 from django.template.loader import render_to_string
 from .decorators import checkLogin, checkSuperuser, checkCart, checkEdit
@@ -92,14 +93,16 @@ def checkout(request):
 		order.confirmation_number = confirmation_number
 		order.date = timezone.now()
 		order.save()
+		current_site = get_current_site(request)
 		subject = "New Order"
 		sender = settings.SENDER_EMAIL
 		admin = settings.ADMIN_EMAIL
-		receiver = [sender, admin]
+		store = request.POST.get('email')
+		receiver = [store, admin]
 		carts = order.cart_set.all()
 		content = render_to_string('main/checkoutemail.html', {
 				'order': order,
-				'carts': cart,
+				'domain': current_site.domain,
 			})
 		sendEmail(subject, content, sender, receiver)
 		return HttpResponseRedirect(f'/ordered/{confirmation_number}')
