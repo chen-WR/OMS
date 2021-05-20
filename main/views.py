@@ -42,6 +42,9 @@ def register(request):
 
 @checkLogin
 def logins(request):
+	next = ""
+	if request.GET:  
+		next = request.GET['next']
 	if request.method == 'POST':
 		form = AuthenticationForm(request, request.POST)
 		if form.is_valid():
@@ -49,7 +52,10 @@ def logins(request):
 			password = request.POST['password']
 			user = authenticate(username=username, password=password)
 			login(request, user)
-			return redirect("home")
+			if next == "":
+				return redirect("home")
+			else:
+				return HttpResponseRedirect(next)
 		else:
 			messages.error(request, "Incorrect Username or Password")
 	form = AuthenticationForm()
@@ -59,7 +65,7 @@ def logouts(request):
 	logout(request)
 	return redirect("index")
 
-@login_required(login_url='index')
+@login_required(login_url='logins')
 def home(request):
 	if request.user.allow_edit:
 		orders = Order.objects.filter(checkout=True).order_by('-date')		
@@ -68,7 +74,7 @@ def home(request):
 	context = {'orders': orders}
 	return render(request, 'main/home.html', context)
 
-@login_required(login_url='index')
+@login_required(login_url='logins')
 def product(request):
 	order, create = Order.objects.get_or_create(user=request.user, checkout=False)
 	carts = order.cart_set.all()
@@ -76,14 +82,14 @@ def product(request):
 	context = {'products':products, 'carts':carts}
 	return render(request, 'main/product.html', context)
 
-@login_required(login_url='index')
+@login_required(login_url='logins')
 def cart(request):
 	order, create = Order.objects.get_or_create(user=request.user, checkout=False)
 	carts = order.cart_set.all()
 	context = {'carts':carts, 'order':order}
 	return render(request, 'main/cart.html', context)
 
-@login_required(login_url='index')
+@login_required(login_url='logins')
 @checkCart
 def checkout(request):
 	if request.method == "POST":
@@ -116,18 +122,18 @@ def checkout(request):
 	context = {'carts':carts, 'order':order}
 	return render(request, 'main/checkout.html', context)
 
-@login_required(login_url='index')
+@login_required(login_url='logins')
 def ordered(request, confirmation_number):
 	return render(request, 'main/ordered.html', {'confirmation_number':confirmation_number})
 
-@login_required(login_url='index')
+@login_required(login_url='logins')
 def viewOrder(request, confirmation_number):
 	order = Order.objects.get(checkout=True, confirmation_number=confirmation_number)
 	carts = order.cart_set.all()
 	context = {'order':order, 'carts':carts}
 	return render(request, 'main/vieworder.html', context)
 
-@login_required(login_url='index')
+@login_required(login_url='logins')
 def updateCart(request):
 	if request.is_ajax():
 		product_id = request.POST.get('product_id')
@@ -159,7 +165,7 @@ def getConfirmationNumber():
 			break
 	return confirmation_number
 
-@login_required(login_url='index')
+@login_required(login_url='logins')
 @checkSuperuser
 def generateSecretKey(request):
 	while True:
@@ -174,7 +180,7 @@ def generateSecretKey(request):
 		context = {'secret_key':secret.secret_key}
 	return render(request, 'main/secret.html', context)
 
-@login_required(login_url='index')
+@login_required(login_url='logins')
 @checkSuperuser
 def updateSecretKey(request):
 	if request.is_ajax():
@@ -190,8 +196,8 @@ def updateSecretKey(request):
 	else:
 		return HttpResponseRedirect('/home')
 
-@login_required(login_url='index')
 @checkEdit
+@login_required(login_url='logins')
 def editOrder(request, confirmation_number):
 	if request.method == "POST":
 		order = Order.objects.get(checkout=True, confirmation_number=confirmation_number)

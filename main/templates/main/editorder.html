@@ -41,7 +41,7 @@
 							</div>
 							<div class="col">
 								<p>Shipped Quantity: {{cart.shipped_quantity}}</p>
-								<input style="width: 150px;" type="number" name="{{cart.product.sap}}-shipped-quantity" min="0" max="{{cart.quantity}}" placeholder="Shipping Quantity">
+								<input style="width: 150px;" type="number" name="{{cart.product.sap}}-shipped-quantity" min="0" max="{{cart.quantity}}" onkeyup="if(this.value > {{cart.quantity}}) this.value = null;" placeholder="Shipping Quantity">
 								<p>Shipped Total: ${{cart.getShipableTotal}}</p>
 							</div>
 						</div>
