@@ -42,9 +42,9 @@ def register(request):
 
 @checkLogin
 def logins(request):
-	next = ""
+	nexts = ""
 	if request.GET:  
-		next = request.GET['next']
+		nexts = request.GET['next']
 	if request.method == 'POST':
 		form = AuthenticationForm(request, request.POST)
 		if form.is_valid():
@@ -52,10 +52,10 @@ def logins(request):
 			password = request.POST['password']
 			user = authenticate(username=username, password=password)
 			login(request, user)
-			if next == "":
+			if nexts == "":
 				return redirect("home")
 			else:
-				return HttpResponseRedirect(next)
+				return HttpResponseRedirect(nexts)
 		else:
 			messages.error(request, "Incorrect Username or Password")
 	form = AuthenticationForm()
