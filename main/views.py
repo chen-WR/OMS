@@ -196,8 +196,8 @@ def updateSecretKey(request):
 	else:
 		return HttpResponseRedirect('/home')
 
-@checkEdit
 @login_required(login_url='logins')
+@checkEdit
 def editOrder(request, confirmation_number):
 	if request.method == "POST":
 		order = Order.objects.get(checkout=True, confirmation_number=confirmation_number)
