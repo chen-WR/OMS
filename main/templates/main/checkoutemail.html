@@ -1,0 +1,8 @@
+{% autoescape off %} 
+{% for cart in carts %}\
+	Item: {{cart.proudct.description}}
+	Quantity: {{cart.quantity}}
+	Total: {{cart.getItemTotal}}
+{% endfor %}
+Order Total: {{order.getCartTotal}}
+{% endautoescape %}

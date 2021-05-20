@@ -3,9 +3,11 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from django.contrib.auth.decorators import login_required
+from django.template.loader import render_to_string
 from .decorators import checkLogin, checkSuperuser, checkCart, checkEdit
 from django.templatetags.static import static
 from django.utils import timezone
+from django.core.mail import EmailMessage, BadHeaderError
 from django.conf import settings
 from django.contrib import messages
 from .models import User, Product, Cart, Order, Secret
@@ -90,6 +92,16 @@ def checkout(request):
 		order.confirmation_number = confirmation_number
 		order.date = timezone.now()
 		order.save()
+		subject = "New Order"
+		sender = settings.SENDER_EMAIL
+		admin = settings.ADMIN_EMAIL
+		receiver = [sender, admin]
+		carts = order.cart_set.all()
+		content = render_to_string('main/checkoutemail.html', {
+				'order': order,
+				'carts': cart,
+			})
+		sendEmail(subject, content, sender, receiver)
 		return HttpResponseRedirect(f'/ordered/{confirmation_number}')
 	order, create = Order.objects.get_or_create(user=request.user, checkout=False)
 	carts = order.cart_set.all()
@@ -201,3 +213,10 @@ def editOrder(request, confirmation_number):
 	carts = order.cart_set.all()
 	context = {'order':order, 'carts':carts}
 	return render(request, 'main/editorder.html', context)
+
+def sendEmail(subject, content, sender, receiver):
+	email = EmailMessage(subject, content, sender, receiver)
+	try: 
+		email.send()
+	except BadHeaderError:
+		return HttpResponse("Invalid Header Found")
