@@ -1,7 +1,7 @@
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import index, register, logins, logouts, home, product, cart, checkout, ordered, updateCart, viewOrder, generateSecretKey, updateSecretKey, editOrder
+from .views import index, register, logins, logouts, home, product, cart, checkout, ordered, updateCart, viewOrder, generateSecretKey, updateSecretKey, editOrder, exportExcel
 
 urlpatterns = [
 	path('', index, name='index'),
@@ -18,6 +18,7 @@ urlpatterns = [
 	path('generate/', generateSecretKey, name='generate'),
 	path('update/', updateSecretKey, name='update'),
 	path('editOrder/<confirmation_number>/', editOrder, name="editOrder"),
+	path('exportExcel/', exportExcel, name='exportExcel'),
 
 ] 
 

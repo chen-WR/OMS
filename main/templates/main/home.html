@@ -4,7 +4,7 @@
 {% block content %}
 	<h1>Orders History</h1>
 	{% if request.user.is_superuser %}
-		<h5 style="float: right"><a href="{% url 'generate' %}">Export Excel</a></h5>
+		<h5 style="float: right"><a href="{% url 'exportExcel' %}">Export Excel</a></h5>
 		<br>
 		<br>
 		<h5 style="float: right"><a href="{% url 'generate' %}">Generate Secret key</a></h5>

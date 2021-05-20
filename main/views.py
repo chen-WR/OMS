@@ -17,6 +17,8 @@ from .updateDB import updateData
 import string
 import json
 import random
+from openpyxl import Workbook
+from openpyxl.styles import Alignment
 
 def index(request):
 	# Currently Not needed
@@ -240,3 +242,61 @@ def sendEmail(subject, content, sender, receiver):
 		email.send()
 	except BadHeaderError:
 		return HttpResponse("Invalid Header Found")
+
+def exportExcel(request):
+	response = HttpResponse(content_type='application/ms-excel')
+	response['Content-Disposition'] = 'attachment; filename="Orders.xlsx"'
+	wb = Workbook()
+	ws1 = wb.create_sheet(title="Orders")
+	# orders = list(Order.objects.filter(checkout=True))
+	orders = Order.objects.filter(checkout=True)
+	field = ['Order Date', 'Order Number', 'Store', 'SAP', 'DESC', 'Ordered Quantity', 'Shipped Quantity','Tracking Number']
+	for row in range(1,2):
+		for col in range(1, len(field)+1):
+			ws1.cell(column=col, row=row, value=f"{field[col-1]}")
+	order_number = 1
+	row_start = 2
+	row_end = row_start+1
+	for order in orders:
+		carts = order.cart_set.all()
+		for cart in carts:
+			for row in range(row_start, row_end):
+				for col in range(1, len(field)+1):
+					if col == 1:
+						ws1.cell(column=col, row=row, value=f"{order.date.date()}")
+					elif col == 2:
+						ws1.cell(column=col, row=row, value=f"{order_number}")
+					elif col == 3:
+						ws1.cell(column=col, row=row, value=f"{order.user.store_name}-{order.user.store_location}")
+					elif col == 4:
+						ws1.cell(column=col, row=row, value=f"{cart.product.sap}")
+					elif col == 5:
+						ws1.cell(column=col, row=row, value=f"{cart.product.description}")
+					elif col == 6:
+						ws1.cell(column=col, row=row, value=f"{cart.quantity}")
+					elif col == 7:
+						ws1.cell(column=col, row=row, value=f"{cart.shipped_quantity}")
+					elif col == 8:
+						ws1.cell(column=col, row=row, value=f"{order.tracking_number}")
+			row_start+=1
+			row_end+=1
+		order_number+=1
+	# for row in range(2,len(orders)+2):
+	# 	for col in range(1, len(field)+1):
+	# 		order = orders[row-2]
+	# 		carts = order.cart_set.all()
+	# 		if col == 1:
+	# 			ws1.cell(column=col, row=row, value=f"{order.date}")
+	# 		elif col == 2:
+	# 			ws1.cell(column=col, row=row, value=f"{order.user.store_name}-{order.user.store_location}")
+	# 		elif col == 3:
+	# 			detail = ""
+	# 			for cart in carts:
+	# 				detail += f"SAP({cart.product.sap})-Desc({cart.product.description})-Quantity({cart.quantity})-Shipped Quantity({cart.shipped_quantity})\n"
+	# 			ws1.cell(column=col, row=row).alignment = Alignment(wrapText=True)
+	# 			ws1.cell(column=col, row=row, value=detail)
+	# 		elif col == 4:
+	# 			ws1.cell(column=col, row=row, value=f"{order.tracking_number}")
+	wb.save(response)
+	return response
+
