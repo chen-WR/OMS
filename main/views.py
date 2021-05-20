@@ -101,7 +101,7 @@ def checkout(request):
 		admin = settings.ADMIN_EMAIL
 		warehouse = settings.WAREHOUSE_EMAIL
 		store = request.POST.get('email')
-		receiver = [store, admin, warehouse]
+		receiver = [store, admin]
 		carts = order.cart_set.all()
 		content = render_to_string('main/checkoutemail.html', {
 				'order': order,
