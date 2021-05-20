@@ -1,5 +1,4 @@
 {% autoescape off %} 
-To Edit Order(Warehouse Only): {% if request.is_secure %}HTTPS{% else %}HTTP{% endif %}://{{ domain }}{% url 'editOrder' confirmation_number=order.confirmation_number %}
 
 Order Detail
 
@@ -9,7 +8,8 @@ Order Detail
   -Order Confirmation Number: {{order.confirmation_number}}
   -Order Count: {{order.getCartList}} 
   -Order Total: {{order.getCartTotal}}
-  -Order Status: Not Shipped
+  -Order Status: Shipped
+  -Tracking Number: {{order.tracking_number}}
   -Comments: {{order.comment}}
 
 Items:

@@ -10,6 +10,8 @@
 	padding: 10px;">
 	<h1>Order Complete</h1>
 	<h3>Confirmation number: {{confirmation_number}}</h3>
-	<button><a href="{% url 'home' %}">Return Home</a></button>
+	<form action="{% url 'home' %}">
+		<button type='submit'>Home</button>
+	</form>
 </div>
 {% endblock content %}

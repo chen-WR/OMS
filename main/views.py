@@ -97,12 +97,15 @@ def checkout(request):
 		subject = "New Order"
 		sender = settings.SENDER_EMAIL
 		admin = settings.ADMIN_EMAIL
+		warehouse = settings.WAREHOUSE_EMAIL
 		store = request.POST.get('email')
-		receiver = [store, admin]
+		receiver = [store, admin, warehouse]
 		carts = order.cart_set.all()
 		content = render_to_string('main/checkoutemail.html', {
 				'order': order,
+				'carts': carts,
 				'domain': current_site.domain,
+				'user': request.user,
 			})
 		sendEmail(subject, content, sender, receiver)
 		return HttpResponseRedirect(f'/ordered/{confirmation_number}')
@@ -194,16 +197,30 @@ def editOrder(request, confirmation_number):
 		for cart in carts:
 			shippable = request.POST.get(f'{cart.product.sap}-shipped-quantity')
 			if shippable != "":
-				if int(shippable) <= cart.quantity:
-					cart.shipped_quantity = int(shippable)
-					cart.save()
+				cart.shipped_quantity = int(shippable)
+				cart.save()
 		tracking_number = request.POST.get('tracking')
 		if tracking_number == "delete":
 			order.tracking_number = None
 			order.save()
-		elif tracking_number != "" and order.getShippedCount != 0 :
+		elif tracking_number != "" and order.getShippedCount != 0:
 			order.tracking_number = tracking_number
 			order.save()
+			sender = settings.SENDER_EMAIL
+			current_site = get_current_site(request)
+			# admin = settings.ADMIN_EMAIL
+			# warehouse = settings.WAREHOUSE_EMAIL
+			store = order.email
+			receiver = [store]
+			subject = "Order Shipped"
+			content = render_to_string('main/shippedemail.html', {
+				'order': order,
+				'carts': carts,
+				'user': request.user,
+				'domain': current_site.domain,
+
+			})
+			sendEmail(subject, content, sender, receiver)
 		elif tracking_number != "" and order.getShippedCount == 0:
 			messages.error(request, "Please Update Quantity Before Updating Tracking Info")
 		if order.tracking_number is not None:
