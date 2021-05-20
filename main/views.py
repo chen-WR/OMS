@@ -249,7 +249,7 @@ def exportExcel(request):
 	wb = Workbook()
 	ws1 = wb.create_sheet(title="Orders")
 	# orders = list(Order.objects.filter(checkout=True))
-	orders = Order.objects.filter(checkout=True)
+	orders = Order.objects.filter(checkout=True, confirm=True)
 	field = ['Order Date', 'Order Number', 'Store', 'SAP', 'DESC', 'Ordered Quantity', 'Shipped Quantity','Tracking Number']
 	for row in range(1,2):
 		for col in range(1, len(field)+1):
