@@ -8,6 +8,7 @@ Order Detail
   -Order Confirmation Number: {{order.confirmation_number}}
   -Order Count: {{order.getCartList}} 
   -Order Total: {{order.getCartTotal}}
+  -New Total: {{order.getShippedTotal}}
   -Order Status: Shipped
   -Tracking Number: {{order.tracking_number}}
   -Comments: {{order.comment}}
@@ -19,7 +20,8 @@ SAP: {{cart.product.sap}}
 Category: {{cart.product.category}}
 Description: {{cart.product.description}}
 Unit: {{cart.product.unit}} for ${{cart.product.unit_price}}
-Quantity: {{cart.quantity}}
+Ordered Quantity: {{cart.quantity}}
+Shipped Quantity: {{cart.shipped_quantity}}
 ---------------------------------------------------------------------------------------
 {% endfor %}
 To View Order: {% if request.is_secure %}HTTPS{% else %}HTTP{% endif %}://{{ domain }}{% url 'viewOrder' confirmation_number=order.confirmation_number %}
