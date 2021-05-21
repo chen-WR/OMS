@@ -33,7 +33,7 @@ SECRET_KEY = env('SECRET_KEY')
 DEBUG = False
 
 # ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['test-page-demo.herokuapp.com', '127.0.0.1', 'localhost']
+ALLOWED_HOSTS = ['bcapackaging.herokuapp.com', '127.0.0.1', 'localhost']
 
 #HTTPS setting 
 SESSION_COOKIE_SECURE = True
