@@ -6,13 +6,18 @@ from django.templatetags.static import static
 class User(AbstractUser):
 	id = models.AutoField(primary_key=True)
 	store_name = models.CharField(max_length=100)
-	store_location = models.PositiveSmallIntegerField()
+	store_location = models.PositiveSmallIntegerField(null=True)
 	allow_edit = models.BooleanField(default=False)
 
 	def __str__(self):
 		return f"{self.username}"
 
-class Secret(models.Model):
+class StoreSecret(models.Model):
+	id = models.AutoField(primary_key=True)
+	secret_key = models.CharField(max_length=10, blank=True, null=True)
+	active = models.BooleanField(default=False)
+
+class WarehouseSecret(models.Model):
 	id = models.AutoField(primary_key=True)
 	secret_key = models.CharField(max_length=10, blank=True, null=True)
 	active = models.BooleanField(default=False)

@@ -2,9 +2,10 @@ const csrftoken = getCookie('csrftoken');
 const updatebtn = document.getElementsByClassName('update-cart')
 
 // Update secret page ajax
-const secretForm = document.getElementById('secret-form')
-const secretBox = document.getElementById('secret-box')
-const secretText = document.getElementById('secret-text')
+const secretForm1 = document.getElementById('secret-form1')
+
+// Update secret page ajax
+const secretForm2 = document.getElementById('secret-form2')
 
 function getCookie(name) {
 	let cookieValue = null;
@@ -117,24 +118,42 @@ function updateCart(product_id, action) {
 	})
 }
 
-if (secretForm != null) {
-	secretForm.addEventListener('submit', e=>{
+if (secretForm1 != null) {
+	secretForm1.addEventListener('submit', e=>{
 		e.preventDefault()
 		$.ajax({
 			type:'POST',
-			url:'/update/',
+			url:'/updatestore/',
 			headers:{
 				'X-CSRFToken':csrftoken,
 			},
 			data:{
 			},
 			success: function(response){
-				var secretText = document.getElementById('secret-text')
-				secretText.remove();
-				const obj = document.createElement('div')
-				obj.setAttribute('id', 'secret-text')
-				obj.textContent = response['secret_key']
-				secretBox.appendChild(obj)
+				var secretText1 = document.getElementById('secret-text1')
+				secretText1.textContent = response['secret_key']
+			},
+			error: function(error){
+				alert(error);
+			},
+		})
+	})
+}
+
+if (secretForm2 != null) {
+	secretForm2.addEventListener('submit', e=>{
+		e.preventDefault()
+		$.ajax({
+			type:'POST',
+			url:'/updatewarehouse/',
+			headers:{
+				'X-CSRFToken':csrftoken,
+			},
+			data:{
+			},
+			success: function(response){
+				var secretText2 = document.getElementById('secret-text2')
+				secretText2.textContent = response['secret_key']
 			},
 			error: function(error){
 				alert(error);

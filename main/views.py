@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.core.mail import EmailMessage, BadHeaderError
 from django.conf import settings
 from django.contrib import messages
-from .models import User, Product, Cart, Order, Secret
+from .models import User, Product, Cart, Order, StoreSecret, WarehouseSecret
 from .forms import RegisterForm
 from .updateDB import updateData
 import string
@@ -31,12 +31,13 @@ def register(request):
 		form = RegisterForm(request.POST)
 		if form.is_valid():
 			user = form.save()
-			return redirect('home')
+			messages.success(request, "Account Created")
+			return redirect('logins')
 		else:				
 			errors = form.errors.get_json_data()
 			for error in errors:
 				message = errors[error][0]['message'] 
-				messages.error(request, message)
+			messages.error(request, message)
 	form = RegisterForm() 
 	return render(request, 'main/register.html', {'form': form })
 
@@ -107,7 +108,7 @@ def checkout(request):
 		admin = settings.ADMIN_EMAIL
 		warehouse = settings.WAREHOUSE_EMAIL
 		store = request.POST.get('email')
-		receiver = [store, admin]
+		receiver = [store, admin, warehouse]
 		carts = order.cart_set.all()
 		content = render_to_string('main/checkoutemail.html', {
 				'order': order,
@@ -169,28 +170,46 @@ def getConfirmationNumber():
 @checkSuperuser
 def generateSecretKey(request):
 	while True:
-		secret_key = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k = 10))	
-		if not Secret.objects.filter(secret_key=secret_key).exists():
+		store_secret_key = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k = 10))	
+		warehouse_secret_key = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k = 10))	
+		if not StoreSecret.objects.filter(secret_key=store_secret_key).exists() and not WarehouseSecret.objects.filter(secret_key=warehouse_secret_key).exists():
 			break
-	if not Secret.objects.filter(active=True).exists():
-		secret = Secret.objects.create(secret_key=secret_key, active=True)
-		context = {'secret_key':secret.secret_key}
-	else:
-		secret = Secret.objects.get(active=True)
-		context = {'secret_key':secret.secret_key}
+	if not StoreSecret.objects.filter(active=True).exists():
+		storesecret = StoreSecret.objects.create(secret_key=store_secret_key, active=True)
+	if not WarehouseSecret.objects.filter(active=True).exists():
+		warehousesecret = WarehouseSecret.objects.create(secret_key=warehouse_secret_key, active=True)
+	store_secret = StoreSecret.objects.get(active=True)
+	warehouse_secret = WarehouseSecret.objects.get(active=True)
+	context = {'store_secret_key':store_secret.secret_key, 'warehouse_secret_key':warehouse_secret.secret_key}
 	return render(request, 'main/secret.html', context)
 
 @login_required(login_url='logins')
 @checkSuperuser
-def updateSecretKey(request):
+def updateStoreSecretKey(request):
 	if request.is_ajax():
 		while True:
 			secret_key = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k = 10))	
-			if not Secret.objects.filter(secret_key=secret_key).exists():
+			if not StoreSecret.objects.filter(secret_key=secret_key).exists():
 				break
-		secret = Secret.objects.get(active=True)
+		secret = StoreSecret.objects.get(active=True)
 		secret.delete()
-		secret = Secret.objects.create(secret_key=secret_key, active=True)
+		secret = StoreSecret.objects.create(secret_key=secret_key, active=True)
+		context = {'secret_key':secret.secret_key}
+		return JsonResponse(context)
+	else:
+		return HttpResponseRedirect('/home')
+
+@login_required(login_url='logins')
+@checkSuperuser
+def updateWarehouseSecretKey(request):
+	if request.is_ajax():
+		while True:
+			secret_key = ''.join(random.choices(string.ascii_uppercase + string.ascii_lowercase + string.digits, k = 10))	
+			if not WarehouseSecret.objects.filter(secret_key=secret_key).exists():
+				break
+		secret = WarehouseSecret.objects.get(active=True)
+		secret.delete()
+		secret = WarehouseSecret.objects.create(secret_key=secret_key, active=True)
 		context = {'secret_key':secret.secret_key}
 		return JsonResponse(context)
 	else:
