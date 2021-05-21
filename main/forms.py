@@ -18,7 +18,7 @@ class RegisterForm(UserCreationForm):
 		secret_key = self.cleaned_data.get('secret_key')
 		if User.objects.filter(username=username).exists():
 			raise ValidationError("Account with that username already exists")
-		if not Secret.objects.filter(secret_key=secret_key).filter(active=True).exists():
+		if not StoreSecret.objects.filter(secret_key=secret_key).filter(active=True).exists() and not WarehouseSecret.objects.filter(secret_key=secret_key).filter(active=True).exists():
 			raise ValidationError('Secet Key Does Not Exist')
 		if password1 and password2 and password1 != password2:
 			raise ValidationError("Password Does Not Match")
@@ -30,7 +30,9 @@ class RegisterForm(UserCreationForm):
 		user.password1 = self.cleaned_data["password1"]
 		user.store_name = self.cleaned_data["store_name"]
 		user.store_location= self.cleaned_data["store_location"]
-		user.secret_key = self.cleaned_data["secret_key"]
+		secret_key = self.cleaned_data["secret_key"]
+		if WarehouseSecret.objects.filter(secret_key=secret_key).filter(active=True).exists():
+			user.allow_edit = True
 		if commit:
 			user.save()
 		return user
