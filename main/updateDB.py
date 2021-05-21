@@ -6,7 +6,7 @@ def updateData():
 	BASE_DIR = Path(__file__).resolve().parent.parent
 	with open(f'{BASE_DIR}/static/data.json') as file:
 		datas = json.load(file)
-	if len(datas) > 136:
+	if len(datas) >= 136:
 		for data in datas:
 			Product.objects.create(
 				category=data['Category'],
