@@ -27,7 +27,7 @@ class Product(models.Model):
 	category = models.CharField(max_length=100, null=True, blank=True)
 	sap = models.IntegerField(null=True, blank=True)
 	description = models.CharField(max_length=100, null=True, blank=True)
-	picture = models.ImageField(null=True, blank=True)
+	picture = models.ImageField(null=True, blank=True, upload_to='temp')
 	size = models.CharField(max_length=100, null=True, blank=True)
 	unit_price = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True)
 	unit = models.IntegerField(null=True, blank=True)
