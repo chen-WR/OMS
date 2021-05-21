@@ -22,7 +22,7 @@ from openpyxl.styles import Alignment
 
 def index(request):
 	# Currently Not needed
-	updateData()
+	# updateData()
 	return redirect('logins')
 
 @checkLogin
