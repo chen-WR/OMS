@@ -8,8 +8,8 @@
 	<h1>Order Detail</h1>
 	{% for cart in carts %}
 		<ul class="list-group">
-			<li class="list-group-item">SAP: {{cart.product.sap}}<br>Product: {{cart.product.category}}, {{cart.product.description}}<br>{{cart.product.unit}} per unit, ${{cart.product.unit_price}} per unit<br>
-			Quantity: {{cart.quantity}} for ${{cart.getItemTotal}}</li>
+			<li class="list-group-item">SAP: {{cart.product.sap}}<br>Product: {{cart.product.category}}, {{cart.product.description}}<br>${{cart.product.unit_price}} per unit, {{cart.product.unit}} unit per stack<br>
+			{{cart.quantity}} stack for ${{cart.getItemTotal}}</li>
 		</ul>
 	{% endfor %}
 	<br>

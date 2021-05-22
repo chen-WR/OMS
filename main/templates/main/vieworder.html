@@ -33,14 +33,15 @@
 							<img class="row-image" src="{{ cart.product.imageURL }}">
 						</div>
 						<div class="col">
-							<p>SAP: {{cart.product.sap}}<br>Product: {{cart.product.category}}, {{cart.product.description}}<br>{{cart.product.unit}} per unit, ${{cart.product.unit_price}} per unit<br></p>
+							<p>SAP: {{cart.product.sap}}<br>Product: {{cart.product.category}}, {{cart.product.description}}<br>${{cart.product.unit_price}} per unit, {{cart.product.unit}} unit per stack<br>${{cart.product.getTotal}} per stack</p>
 						</div>
 						<div class="col">
-							<p>Ordered Quantity: {{cart.quantity}}<br>Total: ${{cart.getItemTotal}}
+							<p>Ordered Quantity/Stack: {{cart.quantity}}<br>Total Unit: {{cart.getItemCount}}<br>Total: ${{cart.getItemTotal}}
 							</p>
 						</div>
 						<div class="col">
-							<p>Shipped Quantity: {{cart.shipped_quantity}}</p>
+							<p>Shipped Quantity/Stack: {{cart.shipped_quantity}}</p>
+							<p>Shipped Unit: {{cart.getShipableCount}}</p>
 							<p>Shipped Total: ${{cart.getShipableTotal}}</p>
 						</div>
 					</div>

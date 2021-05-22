@@ -33,15 +33,16 @@
 								<img class="row-image" src="{{ cart.product.imageURL }}">
 							</div>
 							<div class="col">
-								<p>SAP: {{cart.product.sap}}<br>Product: {{cart.product.category}}, {{cart.product.description}}<br>{{cart.product.unit}} per unit, ${{cart.product.unit_price}} per unit<br></p>
+								<p>SAP: {{cart.product.sap}}<br>Product: {{cart.product.category}}, {{cart.product.description}}<br>${{cart.product.unit_price}} per unit, {{cart.product.unit}} unit per stack<br>${{cart.product.getTotal}} per stack</p>
 							</div>
 							<div class="col">
-								<p>Ordered Quantity: {{cart.quantity}}<br>Total: ${{cart.getItemTotal}}
-								</p>
+								<p>Ordered Quantity/Stack: {{cart.quantity}}<br>Total Unit: {{cart.getItemCount}}<br>Total: ${{cart.getItemTotal}}
+							</p>
 							</div>
 							<div class="col">
-								<p>Shipped Quantity: {{cart.shipped_quantity}}</p>
-								<input style="width: 150px;" type="number" name="{{cart.product.sap}}-shipped-quantity" min="0" max="{{cart.quantity}}" onkeyup="if(this.value > {{cart.quantity}}) this.value = null;" placeholder="Shipping Quantity">
+								<input style="width: 150px;" type="number" name="{{cart.product.sap}}-shipped-quantity" min="0" max="{{cart.quantity}}" onkeyup="if(this.value > ({{cart.quantity}}-{{cart.shipped_quantity}})) this.value = null;" placeholder="Shipping Quantity">
+								<p>Shipped Quantity/Stack: {{cart.shipped_quantity}}</p>
+								<p>Shipped Unit: {{cart.getShipableCount}}</p>
 								<p>Shipped Total: ${{cart.getShipableTotal}}</p>
 							</div>
 						</div>
@@ -54,7 +55,11 @@
 			<script type="text/javascript">alert("{{message}}")</script>
 		{% endfor %}
 		<h4>Tracking Number:</h4>
-		<div style="border: 5px solid rgb(58,110,174); width: 200px;">{{order.tracking_number}}</div>
+		<div style="border: 5px solid rgb(58,110,174); width: 200px; height:300px">
+			{% for track in tracking %}
+				<li>{{track.tracking_number}}</li>
+			{% endfor %}
+		</div>
 		<br>
 		<input style="border: 1px solid rgb(0, 0, 0); width: 250px;" type="text" name="tracking" placeholder="Add or Update Tracking Number">
 		<br>

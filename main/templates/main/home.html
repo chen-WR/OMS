@@ -29,7 +29,10 @@
 					<br>
 					{% if order.confirm %}
 						<p>Order Status: Shipped</p>
-						<p>Tracking Number: {{order.tracking_number}}</p>
+						<p>Tracking Number: </p>
+						{% for track in order.getTracking %}
+							<p><a href="https://www.ups.com/track?loc=en_US&tracknum={{track}}&requester=WEMS_1Z/trackdetails">{{track}}</a></p>
+						{% endfor %}
 					{% elif not order.confirm %}
 						<p>Order Status: Not Shipped</p> 
 					{% endif %}

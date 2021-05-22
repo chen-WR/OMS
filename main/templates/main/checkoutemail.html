@@ -7,7 +7,7 @@ Order Detail
   -Store Location: {{user.store_location}}
   -Order Date: {{order.date}}
   -Order Confirmation Number: {{order.confirmation_number}}
-  -Order Count: {{order.getCartList}} 
+  -Item Count: {{order.getCartList}} 
   -Order Total: {{order.getCartTotal}}
   -Order Status: Not Shipped
   -Comments: {{order.comment}}
@@ -18,8 +18,11 @@ Items:
 SAP: {{cart.product.sap}}
 Category: {{cart.product.category}}
 Description: {{cart.product.description}}
-Unit: {{cart.product.unit}} for ${{cart.product.unit_price}}
+Size: {{cart.product.size}}
+${{cart.product.unit_price}} Per Unit, {{cart.product.unit}} Unit Per Stack 
 Quantity: {{cart.quantity}}
+Unit Count: {{cart.getItemCount}}
+Item Cost: {{cart.getItemTotal}}
 ---------------------------------------------------------------------------------------
 {% endfor %}
 To View Order: {% if request.is_secure %}HTTPS{% else %}HTTP{% endif %}://{{ domain }}{% url 'viewOrder' confirmation_number=order.confirmation_number %}

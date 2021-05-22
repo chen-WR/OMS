@@ -11,7 +11,7 @@ from django.utils import timezone
 from django.core.mail import EmailMessage, BadHeaderError
 from django.conf import settings
 from django.contrib import messages
-from .models import User, Product, Cart, Order, StoreSecret, WarehouseSecret
+from .models import User, Product, Cart, Order, StoreSecret, WarehouseSecret, TrackingNumber
 from .forms import RegisterForm
 from .updateDB import updateData
 import string
@@ -154,9 +154,10 @@ def updateCart(request):
 		if cart.quantity <= 0:
 			cart.delete()
 		itemTotal = cart.getItemTotal
+		itemQuantity = cart.getItemCount
 		orderTotal = order.getCartTotal
 		orderCount = order.getCartCount
-		return JsonResponse({'action':action,'product_id':product_id,'quantity':cart.quantity,'itemTotal':itemTotal,'orderTotal':orderTotal,'orderCount':orderCount})
+		return JsonResponse({'action':action,'product_id':product_id,'quantity':cart.quantity,'itemTotal':itemTotal,'itemQuantity':itemQuantity, 'orderTotal':orderTotal,'orderCount':orderCount})
 	return HttpResponseRedirect('/home')
 
 def getConfirmationNumber():
@@ -219,6 +220,7 @@ def updateWarehouseSecretKey(request):
 @checkEdit
 def editOrder(request, confirmation_number):
 	if request.method == "POST":
+		tracking_number = request.POST.get('tracking')
 		order = Order.objects.get(checkout=True, confirmation_number=confirmation_number)
 		carts = order.cart_set.all()
 		for cart in carts:
@@ -226,13 +228,10 @@ def editOrder(request, confirmation_number):
 			if shippable != "":
 				cart.shipped_quantity = int(shippable)
 				cart.save()
-		tracking_number = request.POST.get('tracking')
 		if tracking_number == "delete":
-			order.tracking_number = None
-			order.save()
+			tracking.delete()
 		elif tracking_number != "" and order.getShippedCount != 0:
-			order.tracking_number = tracking_number
-			order.save()
+			tracking, create = TrackingNumber.objects.get_or_create(order=order, tracking_number=tracking_number)
 			sender = settings.SENDER_EMAIL
 			current_site = get_current_site(request)
 			# admin = settings.ADMIN_EMAIL
@@ -250,15 +249,16 @@ def editOrder(request, confirmation_number):
 			sendEmail(subject, content, sender, receiver)
 		elif tracking_number != "" and order.getShippedCount == 0:
 			messages.error(request, "Please Update Quantity Before Updating Tracking Info")
-		if order.tracking_number is not None:
+		if TrackingNumber.objects.filter(order=order).exists():
 			order.confirm = True
 			order.save()
-		elif order.tracking_number is None:
+		elif not TrackingNumber.objects.filter(order=order).exists():
 			order.confirm = False
 			order.save()
 	order = Order.objects.get(checkout=True, confirmation_number=confirmation_number)
 	carts = order.cart_set.all()
-	context = {'order':order, 'carts':carts}
+	tracking = order.trackingnumber_set.all()
+	context = {'order':order, 'carts':carts, 'tracking':tracking}
 	return render(request, 'main/editorder.html', context)
 
 def sendEmail(subject, content, sender, receiver):
@@ -275,7 +275,7 @@ def exportExcel(request):
 	ws1 = wb.create_sheet(title="Orders")
 	# orders = list(Order.objects.filter(checkout=True))
 	orders = Order.objects.filter(checkout=True, confirm=True)
-	field = ['Order Date', 'Order Number', 'Store', 'SAP', 'DESC', 'Ordered Quantity', 'Shipped Quantity','Tracking Number']
+	field = ['Order Date', 'Order Number', 'Store', 'SAP', 'DESC', 'Ordered Quantity', 'Ordered Unit', 'Shipped Quantity', 'Shipped Unit', 'Tracking Number']
 	for row in range(1,2):
 		for col in range(1, len(field)+1):
 			ws1.cell(column=col, row=row, value=f"{field[col-1]}")
@@ -300,9 +300,17 @@ def exportExcel(request):
 					elif col == 6:
 						ws1.cell(column=col, row=row, value=f"{cart.quantity}")
 					elif col == 7:
-						ws1.cell(column=col, row=row, value=f"{cart.shipped_quantity}")
+						ws1.cell(column=col, row=row, value=f"{cart.getItemCount}")
 					elif col == 8:
-						ws1.cell(column=col, row=row, value=f"{order.tracking_number}")
+						ws1.cell(column=col, row=row, value=f"{cart.shipped_quantity}")
+					elif col == 9:
+						ws1.cell(column=col, row=row, value=f"{cart.getShipableCount}")
+					elif col == 10:
+						track = ""
+						for tracking in order.getTracking:
+							track += f"{tracking}\n"
+						ws1.cell(column=col, row=row).alignment = Alignment(wrapText=True)
+						ws1.cell(column=col, row=row, value=f"{track}")
 			row_start+=1
 			row_end+=1
 		order_number+=1

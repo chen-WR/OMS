@@ -47,6 +47,7 @@ function updateCart(product_id, action) {
 			action = response['action'];
 			product_id = response['product_id'];
 			quantity = response['quantity'];
+			itemQuantity = response['itemQuantity']
 			itemTotal = response['itemTotal'];
 			orderTotal = response['orderTotal'];
 			orderCount = response['orderCount'];
@@ -70,6 +71,8 @@ function updateCart(product_id, action) {
 					productTotalCount.textContent = quantity;
 					var itotal = document.getElementById(product_id+"-cart-total");
 					itotal.textContent = "$"+itemTotal;
+					var icount = document.getElementById(product_id+"-cart-totalcount");
+					icount.textContent = itemQuantity;
 					var ototal = document.getElementById('order-total');
 					ototal.textContent = "$"+orderTotal;
 					var ocount = document.getElementById('order-count');
@@ -84,6 +87,8 @@ function updateCart(product_id, action) {
 					productTotalCount.textContent = quantity;
 					var itotal = document.getElementById(product_id+"-cart-total");
 					itotal.textContent = "$"+itemTotal;
+					var icount = document.getElementById(product_id+"-cart-totalcount");
+					icount.textContent = itemQuantity;
 					if(quantity == 0) {
 						var itemRow = document.getElementById(product_id+"-row");
 						itemRow.remove();
