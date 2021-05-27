@@ -2,6 +2,8 @@ from django.db import models
 from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 from django.templatetags.static import static
+from openpyxl import Workbook
+from openpyxl.styles import Alignment
 
 class User(AbstractUser):
 	id = models.AutoField(primary_key=True)
@@ -11,6 +13,10 @@ class User(AbstractUser):
 
 	def __str__(self):
 		return f"{self.username}"
+
+class ReportDue(models.Model):
+	id = models.AutoField(primary_key=True)
+	date = models.DateTimeField(default=timezone.now, blank=True, null=True)
 
 class StoreSecret(models.Model):
 	id = models.AutoField(primary_key=True)
@@ -48,7 +54,7 @@ class Product(models.Model):
 	@property
 	def imageURL(self):
 		try:
-			url = static(self.picture.url)
+			url = self.picture.url
 		except:
 			url = static("unavailable.jpg")
 		return url
@@ -152,15 +158,48 @@ class Cart(models.Model):
 		total = (self.product.unit_price *self.product.unit) * self.shipped_quantity
 		return total
 
-	
-	
-
-
-	
-	
-
-
-	
-
-
-
+def excel():
+	wb = Workbook()
+	ws1 = wb.create_sheet(title="Orders")
+	# orders = list(Order.objects.filter(checkout=True))
+	orders = Order.objects.filter(checkout=True, confirm=True)
+	field = ['Order Date', 'Order Number', 'Store', 'SAP', 'DESC', 'Ordered Quantity', 'Ordered Unit', 'Shipped Quantity', 'Shipped Unit', 'Tracking Number']
+	for row in range(1,2):
+		for col in range(1, len(field)+1):
+			ws1.cell(column=col, row=row, value=f"{field[col-1]}")
+	order_number = 1
+	row_start = 2
+	row_end = row_start+1
+	for order in orders:
+		carts = order.cart_set.all()
+		for cart in carts:
+			for row in range(row_start, row_end):
+				for col in range(1, len(field)+1):
+					if col == 1:
+						ws1.cell(column=col, row=row, value=f"{order.date.date()}")
+					elif col == 2:
+						ws1.cell(column=col, row=row, value=f"{order_number}")
+					elif col == 3:
+						ws1.cell(column=col, row=row, value=f"{order.user.store_name}-{order.user.store_location}")
+					elif col == 4:
+						ws1.cell(column=col, row=row, value=f"{cart.product.sap}")
+					elif col == 5:
+						ws1.cell(column=col, row=row, value=f"{cart.product.description}")
+					elif col == 6:
+						ws1.cell(column=col, row=row, value=f"{cart.quantity}")
+					elif col == 7:
+						ws1.cell(column=col, row=row, value=f"{cart.getItemCount}")
+					elif col == 8:
+						ws1.cell(column=col, row=row, value=f"{cart.shipped_quantity}")
+					elif col == 9:
+						ws1.cell(column=col, row=row, value=f"{cart.getShipableCount}")
+					elif col == 10:
+						track = ""
+						for tracking in order.getTracking:
+							track += f"{tracking}\n"
+						ws1.cell(column=col, row=row).alignment = Alignment(wrapText=True)
+						ws1.cell(column=col, row=row, value=f"{track}")
+			row_start+=1
+			row_end+=1
+		order_number+=1
+	return wb

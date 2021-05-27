@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'main.apps.MainConfig',
+    'storages',
 ]
 
 MIDDLEWARE = [
@@ -137,8 +138,12 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-MEDIA_ROOT = os.path.join(BASE_DIR,'static/product_image')
-MEDIA_URL = '/product_image/'
+# MEDIA_ROOT = os.path.join(BASE_DIR,'static/product_image')
+# MEDIA_URL = '/product_image/'
+# MEDIA_DIR = os.path.join(BASE_DIR,'media')
+
+MEDIA_ROOT = os.path.join(BASE_DIR,'media')
+MEDIA_URL = '/media/'
 MEDIA_DIR = os.path.join(BASE_DIR,'media')
 
 STATIC_ROOT = os.path.join(BASE_DIR,'staticfiles')
@@ -168,3 +173,14 @@ EMAIL_HOST_PASSWORD = env('SENDGRID_API')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = SENDER_EMAIL 
+
+#AWS S3 setting
+AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME')
+AWS_S3_SIGNATURE_VERSION = env('AWS_S3_SIGNATURE_VERSION')
+AWS_S3_ADDRESSING_STYLE = env('AWS_S3_ADDRESSING_STYLE')
+AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+AWS_S3_FILE_OVERWRITE = False
+AWS_DEFAULT_ACL = None
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage' 

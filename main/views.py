@@ -11,18 +11,22 @@ from django.utils import timezone
 from django.core.mail import EmailMessage, BadHeaderError
 from django.conf import settings
 from django.contrib import messages
-from .models import User, Product, Cart, Order, StoreSecret, WarehouseSecret, TrackingNumber
+from .models import User, Product, Cart, Order, StoreSecret, WarehouseSecret, TrackingNumber, ReportDue, excel
 from .forms import RegisterForm
 from .updateDB import updateData
 import string
 import json
 import random
-from openpyxl import Workbook
-from openpyxl.styles import Alignment
+import threading
+import datetime
+from io import BytesIO
 
 def index(request):
 	# Currently Not needed
 	# updateData()
+	thread = threading.Thread(target=emailReport)
+	thread.daemon = True
+	thread.start()
 	return redirect('logins')
 
 @checkLogin
@@ -261,75 +265,35 @@ def editOrder(request, confirmation_number):
 	context = {'order':order, 'carts':carts, 'tracking':tracking}
 	return render(request, 'main/editorder.html', context)
 
-def sendEmail(subject, content, sender, receiver):
-	email = EmailMessage(subject, content, sender, receiver)
+def sendEmail(subject, content, sender, receiver, attach=None):
+	email = EmailMessage(subject, content, sender, [receiver])
+	if attach is not None:
+		email.attach('Report.xlsx', attach.getvalue() , 'application/vnd.ms-excel')
 	try: 
 		email.send()
 	except BadHeaderError:
 		return HttpResponse("Invalid Header Found")
 
 def exportExcel(request):
+	wb = excel()
 	response = HttpResponse(content_type='application/ms-excel')
-	response['Content-Disposition'] = 'attachment; filename="Orders.xlsx"'
-	wb = Workbook()
-	ws1 = wb.create_sheet(title="Orders")
-	# orders = list(Order.objects.filter(checkout=True))
-	orders = Order.objects.filter(checkout=True, confirm=True)
-	field = ['Order Date', 'Order Number', 'Store', 'SAP', 'DESC', 'Ordered Quantity', 'Ordered Unit', 'Shipped Quantity', 'Shipped Unit', 'Tracking Number']
-	for row in range(1,2):
-		for col in range(1, len(field)+1):
-			ws1.cell(column=col, row=row, value=f"{field[col-1]}")
-	order_number = 1
-	row_start = 2
-	row_end = row_start+1
-	for order in orders:
-		carts = order.cart_set.all()
-		for cart in carts:
-			for row in range(row_start, row_end):
-				for col in range(1, len(field)+1):
-					if col == 1:
-						ws1.cell(column=col, row=row, value=f"{order.date.date()}")
-					elif col == 2:
-						ws1.cell(column=col, row=row, value=f"{order_number}")
-					elif col == 3:
-						ws1.cell(column=col, row=row, value=f"{order.user.store_name}-{order.user.store_location}")
-					elif col == 4:
-						ws1.cell(column=col, row=row, value=f"{cart.product.sap}")
-					elif col == 5:
-						ws1.cell(column=col, row=row, value=f"{cart.product.description}")
-					elif col == 6:
-						ws1.cell(column=col, row=row, value=f"{cart.quantity}")
-					elif col == 7:
-						ws1.cell(column=col, row=row, value=f"{cart.getItemCount}")
-					elif col == 8:
-						ws1.cell(column=col, row=row, value=f"{cart.shipped_quantity}")
-					elif col == 9:
-						ws1.cell(column=col, row=row, value=f"{cart.getShipableCount}")
-					elif col == 10:
-						track = ""
-						for tracking in order.getTracking:
-							track += f"{tracking}\n"
-						ws1.cell(column=col, row=row).alignment = Alignment(wrapText=True)
-						ws1.cell(column=col, row=row, value=f"{track}")
-			row_start+=1
-			row_end+=1
-		order_number+=1
-	# for row in range(2,len(orders)+2):
-	# 	for col in range(1, len(field)+1):
-	# 		order = orders[row-2]
-	# 		carts = order.cart_set.all()
-	# 		if col == 1:
-	# 			ws1.cell(column=col, row=row, value=f"{order.date}")
-	# 		elif col == 2:
-	# 			ws1.cell(column=col, row=row, value=f"{order.user.store_name}-{order.user.store_location}")
-	# 		elif col == 3:
-	# 			detail = ""
-	# 			for cart in carts:
-	# 				detail += f"SAP({cart.product.sap})-Desc({cart.product.description})-Quantity({cart.quantity})-Shipped Quantity({cart.shipped_quantity})\n"
-	# 			ws1.cell(column=col, row=row).alignment = Alignment(wrapText=True)
-	# 			ws1.cell(column=col, row=row, value=detail)
-	# 		elif col == 4:
-	# 			ws1.cell(column=col, row=row, value=f"{order.tracking_number}")
+	response['Content-Disposition'] = 'attachment; filename="Report.xlsx"'
 	wb.save(response)
 	return response
 
+def emailReport():
+	output = BytesIO()
+	wb = excel()
+	wb.save(output)
+	subject = 'Report'
+	content = 'Order Report'
+	sender = settings.SENDER_EMAIL
+	receiver = settings.ADMIN_EMAIL
+	date, created = ReportDue.objects.get_or_create(pk=1)
+	due = date.date.date()
+	now = timezone.now().date()
+	remain = due - now
+	if (remain >= datetime.timedelta(days=0) and remain < datetime.timedelta(days=+15)) or (remain <= datetime.timedelta(days=0) and remain > datetime.timedelta(days=-15)):
+		date.date += datetime.timedelta(days=92)
+		date.save()
+		sendEmail(subject, content, sender, receiver, output)
