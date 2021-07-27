@@ -29,8 +29,8 @@ environ.Env.read_env()
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-DEBUG = False
+DEBUG = True
+# DEBUG = False
 
 # ALLOWED_HOSTS = []
 ALLOWED_HOSTS = ['bcapackaging.herokuapp.com', '127.0.0.1', 'localhost', 'test-page-demo.herokuapp.com']
@@ -94,12 +94,12 @@ WSGI_APPLICATION = 'OMS.wsgi.application'
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 DATABASES = {
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
-    # }
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
-DATABASES['default'] = dj_database_url.config(conn_max_age=600) 
+# DATABASES['default'] = dj_database_url.config(conn_max_age=600) 
 
 
 # Password validation
